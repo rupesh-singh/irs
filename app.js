@@ -504,8 +504,6 @@ function CardView({ topic, problems, focusProblemId, onExit, progressState, upda
   const [animKey, setAnimKey] = useState(0);
   const [direction, setDirection] = useState('right'); // 'left' | 'right'
   const [leaving, setLeaving] = useState(null);
-  const containerRef = useRef(null);
-  const touchStart = useRef(null);
   const [shuffledOrder, setShuffledOrder] = useState(shuffleEnabled ? shuffleArray(problems) : problems);
   const currentIdRef = useRef(null);
 
@@ -564,39 +562,10 @@ function CardView({ topic, problems, focusProblemId, onExit, progressState, upda
     return ()=> window.removeEventListener('keydown', handleKey);
   }, [handleKey]);
 
-  // Touch + drag support
-  useEffect(()=> {
-    const el = containerRef.current;
-    if (!el) return;
-    function onTouchStart(e) { touchStart.current = { x: e.touches? e.touches[0].clientX : e.clientX, time: Date.now()}; }
-    function onTouchMove(e) { /* maybe future preview */ }
-    function onTouchEnd(e) {
-      if (!touchStart.current) return;
-      const endX = e.changedTouches? e.changedTouches[0].clientX : e.clientX;
-      const dx = endX - touchStart.current.x;
-      const dt = Date.now() - touchStart.current.time;
-      const abs = Math.abs(dx);
-      if (abs > 50 && dt < 800) {
-        if (dx < 0) go(1); else go(-1);
-      }
-      touchStart.current = null;
-    }
-    el.addEventListener('touchstart', onTouchStart, {passive:true});
-    el.addEventListener('touchend', onTouchEnd);
-    el.addEventListener('mousedown', onTouchStart);
-    el.addEventListener('mouseup', onTouchEnd);
-    return ()=> {
-      el.removeEventListener('touchstart', onTouchStart);
-      el.removeEventListener('touchend', onTouchEnd);
-      el.removeEventListener('mousedown', onTouchStart);
-      el.removeEventListener('mouseup', onTouchEnd);
-    };
-  }, [go]);
-
   const progressText = `${index+1}/${shuffledOrder.length}`;
 
   return (
-    <div className="card-container" ref={containerRef} role="region" aria-label={`Cards for ${topic}`}>
+    <div className="card-container" role="region" aria-label={`Cards for ${topic}`}>
       <div className="swipe-area">
         {current && (
           <div key={animKey} className={`swipe-anim ${direction==='right'? 'entering-right':'entering-left'}`} style={{width:'100%', display:'flex', justifyContent:'center'}}>
@@ -836,3 +805,4 @@ function App() {
 /****************************** Mount App ******************************/
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
+
