@@ -1,7 +1,5 @@
 # IRS
 
-Swipeable, mobile‑first flashcard web app to quickly revise NeetCode 150 problems by topic. Built with vanilla React + CSS (no build step) so you can just open `index.html` locally or deploy statically (GitHub Pages / Vercel / Netlify).
-
 ## Features
 - Topic list derived from data (no hardcoding)
 - Flip + swipe style cards (tap, click, arrow keys, or swipe)
@@ -24,4 +22,5 @@ README.md        # This document
 
 ---
 Happy Vibe coding! 🚀
+
 
