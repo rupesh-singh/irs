@@ -1,0 +1,1185 @@
+[
+  {
+    "id": "contains-duplicate",
+    "title": "Contains Duplicate",
+    "topic": "Arrays & Hashing",
+    "difficulty": "Easy",
+    "description": "TODO: Add full statement manually.",
+    "descriptionHtml": "<p><strong>Contains Duplicate</strong></p><p><!-- Add statement here --></p>",
+    "solutionJava": "class Solution {\n    public boolean containsDuplicate(int[] nums) {\n        java.util.Set<Integer> set = new java.util.HashSet<>();\n        for (int n : nums) {\n            if (!set.add(n)) return true;\n        }\n        return false;\n    }\n}",
+    "sampleTests": [
+      {
+        "input": "nums = [1,2,3,1]",
+        "output": "true"
+      }
+    ]
+  },
+  {
+    "id": "valid-anagram",
+    "title": "Valid Anagram",
+    "topic": "Arrays & Hashing",
+    "difficulty": "Easy",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Valid Anagram</strong></p>",
+    "solutionJava": "class Solution {\n    public boolean isAnagram(String s, String t) {\n        if (s.length() != t.length()) return false;\n        int[] cnt = new int[26];\n        for (char c : s.toCharArray()) cnt[c - 'a']++;\n        for (char c : t.toCharArray()) {\n            if (--cnt[c - 'a'] < 0) return false;\n        }\n        return true;\n    }\n}",
+    "sampleTests": [
+      {
+        "input": "s = 'anagram', t = 'nagaram'",
+        "output": "true"
+      }
+    ]
+  },
+  {
+    "id": "two-sum",
+    "title": "Two Sum",
+    "topic": "Arrays & Hashing",
+    "difficulty": "Easy",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Two Sum</strong></p>",
+    "solutionJava": "class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        java.util.Map<Integer, Integer> map = new java.util.HashMap<>();\n        for (int i = 0; i < nums.length; i++) {\n            int want = target - nums[i];\n            if (map.containsKey(want)) return new int[]{map.get(want), i};\n            map.put(nums[i], i);\n        }\n        return new int[0];\n    }\n}",
+    "sampleTests": [
+      {
+        "input": "nums=[2,7,11,15], target=9",
+        "output": "[0,1]"
+      }
+    ]
+  },
+  {
+    "id": "group-anagrams",
+    "title": "Group Anagrams",
+    "topic": "Arrays & Hashing",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Group Anagrams</strong></p>",
+    "solutionJava": "class Solution {\n    public java.util.List<java.util.List<String>> groupAnagrams(String[] strs) {\n        java.util.Map<String, java.util.List<String>> map = new java.util.HashMap<>();\n        for (String s : strs) {\n            int[] freq = new int[26];\n            for (char c : s.toCharArray()) freq[c - 'a']++;\n            StringBuilder key = new StringBuilder();\n            for (int f : freq) {\n                key.append('#').append(f);\n            }\n            map.computeIfAbsent(key.toString(), k -> new java.util.ArrayList<>()).add(s);\n        }\n        return new java.util.ArrayList<>(map.values());\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "top-k-frequent-elements",
+    "title": "Top K Frequent Elements",
+    "topic": "Arrays & Hashing",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Top K Frequent Elements</strong></p>",
+    "solutionJava": "class Solution {\n    public int[] topKFrequent(int[] nums, int k) {\n        java.util.Map<Integer, Integer> cnt = new java.util.HashMap<>();\n        for (int n : nums) cnt.put(n, cnt.getOrDefault(n, 0) + 1);\n        java.util.PriorityQueue<int[]> pq = new java.util.PriorityQueue<>((a, b) -> a[1] - b[1]);\n        for (java.util.Map.Entry<Integer, Integer> e : cnt.entrySet()) {\n            pq.offer(new int[]{e.getKey(), e.getValue()});\n            if (pq.size() > k) pq.poll();\n        }\n        int[] res = new int[k];\n        for (int i = k - 1; i >= 0; i--) res[i] = pq.poll()[0];\n        return res;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "encode-and-decode-strings",
+    "title": "Encode and Decode Strings",
+    "topic": "Arrays & Hashing",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Encode and Decode Strings</strong></p>",
+    "solutionJava": "class Codec {\n    public String encode(java.util.List<String> strs) {\n        StringBuilder sb = new StringBuilder();\n        for (String s : strs) {\n            sb.append(s.length()).append('#').append(s);\n        }\n        return sb.toString();\n    }\n    public java.util.List<String> decode(String s) {\n        java.util.List<String> res = new java.util.ArrayList<>();\n        int i = 0;\n        while (i < s.length()) {\n            int j = i;\n            while (s.charAt(j) != '#') j++;\n            int len = Integer.parseInt(s.substring(i, j));\n            j++;\n            res.add(s.substring(j, j + len));\n            i = j + len;\n        }\n        return res;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "product-of-array-except-self",
+    "title": "Product of Array Except Self",
+    "topic": "Arrays & Hashing",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Product of Array Except Self</strong></p>",
+    "solutionJava": "class Solution {\n    public int[] productExceptSelf(int[] nums) {\n        int n = nums.length;\n        int[] res = new int[n];\n        int prefix = 1;\n        for (int i = 0; i < n; i++) {\n            res[i] = prefix;\n            prefix *= nums[i];\n        }\n        int suffix = 1;\n        for (int i = n - 1; i >= 0; i--) {\n            res[i] *= suffix;\n            suffix *= nums[i];\n        }\n        return res;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "valid-sudoku",
+    "title": "Valid Sudoku",
+    "topic": "Arrays & Hashing",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Valid Sudoku</strong></p>",
+    "solutionJava": "class Solution {\n    public boolean isValidSudoku(char[][] board) {\n        boolean[][] row = new boolean[9][9];\n        boolean[][] col = new boolean[9][9];\n        boolean[][] box = new boolean[9][9];\n        for (int r = 0; r < 9; r++) {\n            for (int c = 0; c < 9; c++) {\n                char ch = board[r][c];\n                if (ch == '.') continue;\n                int d = ch - '1';\n                int b = (r / 3) * 3 + (c / 3);\n                if (row[r][d] || col[c][d] || box[b][d]) return false;\n                row[r][d] = col[c][d] = box[b][d] = true;\n            }\n        }\n        return true;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "longest-consecutive-sequence",
+    "title": "Longest Consecutive Sequence",
+    "topic": "Arrays & Hashing",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Longest Consecutive Sequence</strong></p>",
+    "solutionJava": "class Solution {\n    public int longestConsecutive(int[] nums) {\n        java.util.Set<Integer> set = new java.util.HashSet<>();\n        for (int n : nums) set.add(n);\n        int best = 0;\n        for (int n : set) {\n            if (!set.contains(n - 1)) {\n                int cur = n, len = 1;\n                while (set.contains(cur + 1)) { cur++; len++; }\n                best = Math.max(best, len);\n            }\n        }\n        return best;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "valid-palindrome",
+    "title": "Valid Palindrome",
+    "topic": "Two Pointers",
+    "difficulty": "Easy",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Valid Palindrome</strong></p>",
+    "solutionJava": "class Solution {\n    public boolean isPalindrome(String s) {\n        int i = 0, j = s.length() - 1;\n        while (i < j) {\n            char a = s.charAt(i), b = s.charAt(j);\n            if (!Character.isLetterOrDigit(a)) { i++; continue; }\n            if (!Character.isLetterOrDigit(b)) { j--; continue; }\n            if (Character.toLowerCase(a) != Character.toLowerCase(b)) return false;\n            i++; j--;\n        }\n        return true;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "3sum",
+    "title": "3Sum",
+    "topic": "Two Pointers",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>3Sum</strong></p>",
+    "solutionJava": "class Solution {\n    public java.util.List<java.util.List<Integer>> threeSum(int[] nums) {\n        java.util.Arrays.sort(nums);\n        java.util.List<java.util.List<Integer>> res = new java.util.ArrayList<>();\n        int n = nums.length;\n        for (int i = 0; i < n; i++) {\n            if (i > 0 && nums[i] == nums[i - 1]) continue;\n            int l = i + 1, r = n - 1;\n            while (l < r) {\n                int sum = nums[i] + nums[l] + nums[r];\n                if (sum == 0) {\n                    res.add(java.util.Arrays.asList(nums[i], nums[l], nums[r]));\n                    l++; r--;\n                    while (l < r && nums[l] == nums[l - 1]) l++;\n                    while (l < r && nums[r] == nums[r + 1]) r--;\n                } else if (sum < 0) l++; else r--;\n            }\n        }\n        return res;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "container-with-most-water",
+    "title": "Container With Most Water",
+    "topic": "Two Pointers",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Container With Most Water</strong></p>",
+    "solutionJava": "class Solution {\n    public int maxArea(int[] h) {\n        int i = 0, j = h.length - 1, best = 0;\n        while (i < j) {\n            best = Math.max(best, Math.min(h[i], h[j]) * (j - i));\n            if (h[i] < h[j]) i++; else j--;\n        }\n        return best;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "trapping-rain-water",
+    "title": "Trapping Rain Water",
+    "topic": "Two Pointers",
+    "difficulty": "Hard",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Trapping Rain Water</strong></p>",
+    "solutionJava": "class Solution {\n    public int trap(int[] h) {\n        int l = 0, r = h.length - 1, lmax = 0, rmax = 0, water = 0;\n        while (l < r) {\n            if (h[l] <= h[r]) {\n                lmax = Math.max(lmax, h[l]);\n                water += lmax - h[l];\n                l++;\n            } else {\n                rmax = Math.max(rmax, h[r]);\n                water += rmax - h[r];\n                r--;\n            }\n        }\n        return water;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "best-time-to-buy-and-sell-stock",
+    "title": "Best Time to Buy and Sell Stock",
+    "topic": "Two Pointers",
+    "difficulty": "Easy",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Best Time to Buy and Sell Stock</strong></p>",
+    "solutionJava": "class Solution {\n    public int maxProfit(int[] prices) {\n        int min = Integer.MAX_VALUE, best = 0;\n        for (int p : prices) {\n            if (p < min) min = p;\n            best = Math.max(best, p - min);\n        }\n        return best;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "longest-substring-without-repeating-characters",
+    "title": "Longest Substring Without Repeating Characters",
+    "topic": "Sliding Window",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Longest Substring Without Repeating Characters</strong></p>",
+    "solutionJava": "class Solution {\n    public int lengthOfLongestSubstring(String s) {\n        int[] last = new int[128];\n        java.util.Arrays.fill(last, -1);\n        int best = 0, left = 0;\n        for (int i = 0; i < s.length(); i++) {\n            char c = s.charAt(i);\n            if (last[c] >= left) left = last[c] + 1;\n            last[c] = i;\n            best = Math.max(best, i - left + 1);\n        }\n        return best;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "longest-repeating-character-replacement",
+    "title": "Longest Repeating Character Replacement",
+    "topic": "Sliding Window",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Longest Repeating Character Replacement</strong></p>",
+    "solutionJava": "class Solution {\n    public int characterReplacement(String s, int k) {\n        int[] cnt = new int[26];\n        int maxCount = 0, left = 0, best = 0;\n        for (int r = 0; r < s.length(); r++) {\n            int idx = s.charAt(r) - 'A';\n            cnt[idx]++;\n            maxCount = Math.max(maxCount, cnt[idx]);\n            while (r - left + 1 - maxCount > k) {\n                cnt[s.charAt(left) - 'A']--;\n                left++;\n            }\n            best = Math.max(best, r - left + 1);\n        }\n        return best;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "minimum-window-substring",
+    "title": "Minimum Window Substring",
+    "topic": "Sliding Window",
+    "difficulty": "Hard",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Minimum Window Substring</strong></p>",
+    "solutionJava": "class Solution {\n    public String minWindow(String s, String t) {\n        if (t.length() == 0 || s.length() < t.length()) return \"\";\n        int[] need = new int[128];\n        int required = 0;\n        for (char c : t.toCharArray()) {\n            if (need[c]++ == 0) required++;\n        }\n        int[] have = new int[128];\n        int formed = 0, left = 0;\n        int bestLen = Integer.MAX_VALUE, bestL = 0;\n        for (int r = 0; r < s.length(); r++) {\n            char c = s.charAt(r);\n            if (++have[c] == need[c]) formed++;\n            while (formed == required) {\n                if (r - left + 1 < bestLen) {\n                    bestLen = r - left + 1; bestL = left;\n                }\n                char cl = s.charAt(left++);\n                if (have[cl]-- == need[cl]) formed--;\n            }\n        }\n        return bestLen == Integer.MAX_VALUE ? \"\" : s.substring(bestL, bestL + bestLen);\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "sliding-window-maximum",
+    "title": "Sliding Window Maximum",
+    "topic": "Sliding Window",
+    "difficulty": "Hard",
+    "description": "Sliding Window Maximum problem",
+    "descriptionHtml": "You are given an array of integers `nums` and an integer `k`. There is a sliding window of size `k` that starts at the left edge of the array. The window slides one position to the right until it reaches the right edge of the array.\n\nReturn a list that contains the maximum element in the window at each step.\n\n**Example 1:**\n\n```java\nInput: nums = [1,2,1,0,4,2,6], k = 3\n\nOutput: [2,2,4,4,6]\n\nExplanation: \nWindow position            Max\n---------------           -----\n[1  2  1] 0  4  2  6        2\n 1 [2  1  0] 4  2  6        2\n 1  2 [1  0  4] 2  6        4\n 1  2  1 [0  4  2] 6        4\n 1  2  1  0 [4  2  6]       6\n```\n\n**Constraints:**\n* `1 <= nums.length <= 1000`\n* `-1000 <= nums[i] <= 1000`\n* `1 <= k <= nums.length`\n\n<br>\n<br>\n<details class=\"hint-accordion\">  \n    <summary>Recommended Time & Space Complexity</summary>\n    <p>\n    You should aim for a solution as good or better than <code>O(nlogn)</code> time and <code>O(n)</code> space, where <code>n</code> is the size of the input array.\n    </p>\n</details>\n\n<br>\n<details class=\"hint-accordion\">  \n    <summary>Hint 1</summary>\n    <p>\n    A brute force solution would involve iterating through each window of size <code>k</code> and finding the maximum element within the window by iterating through it. This would be an <code>O(n * k)</code> solution. Can you think of a better way? Maybe think of a data structure that tells the current maximum element of the window in <code>O(1)</code> time.\n    </p>\n</details>\n\n<br>\n<details class=\"hint-accordion\">  \n    <summary>Hint 2</summary>\n    <p>\n    A heap is the best data structure to use when dealing with maximum or minimum values and it takes <code>O(1)</code> time to get the max or min value. Here, we use a max-heap. But what should we do if the current maximum element is no longer part of the window? Can you think of a different way of adding values to the max-heap?\n    </p>\n</details>\n\n<br>\n<details class=\"hint-accordion\">  \n    <summary>Hint 3</summary>\n    <p>\n    We process each window by adding elements to the heap along with their indices to track whether the maximum value is still within the current window. As we move from one window to the next, an element may go out of the window but still remain in the max-heap. Is there a way to handle this situation efficiently?\n    </p>\n</details>\n\n<br>\n<details class=\"hint-accordion\">  \n    <summary>Hint 4</summary>\n    <p>\n    We can ignore those elements that are no longer part of the current window, except when the maximum value is outside the window. In that case, we remove elements from the max-heap until the maximum value belongs to the current window. Why? Because those elements will be eventually removed when the maximum element goes out of the window. \n    </p>\n</details>\n",
+    "solutionJava": "class Solution {\n    public int[] maxSlidingWindow(int[] nums, int k) {\n        if (nums == null || nums.length == 0 || k == 0) return new int[0];\n        int n = nums.length;\n        int[] result = new int[n - k + 1];\n        Deque<Integer> deque = new ArrayDeque<>();\n        for (int i = 0; i < n; i++) {\n            // Remove elements not in the window\n            if (!deque.isEmpty() && deque.peek() == i - k) deque.poll();\n            // Remove smaller elements in k range as they are useless\n            while (!deque.isEmpty() && nums[deque.peekLast()] < nums[i]) deque.pollLast();\n            deque.offer(i);\n            // Start to add results from the k-1 index\n            if (i >= k - 1) result[i - k + 1] = nums[deque.peek()];\n        }\n        return result;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "valid-parentheses",
+    "title": "Valid Parentheses",
+    "topic": "Stack",
+    "difficulty": "Easy",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Valid Parentheses</strong></p>",
+    "solutionJava": "class Solution {\n    public boolean isValid(String s) {\n        java.util.Map<Character, Character> map = new java.util.HashMap<>();\n        map.put(')', '('); map.put(']', '['); map.put('}', '{');\n        java.util.Deque<Character> st = new java.util.ArrayDeque<>();\n        for (char c : s.toCharArray()) {\n            if (map.containsKey(c)) {\n                if (st.isEmpty() || st.pop() != map.get(c)) return false;\n            } else {\n                st.push(c);\n            }\n        }\n        return st.isEmpty();\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "generate-parentheses",
+    "title": "Generate Parentheses",
+    "topic": "Stack",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Generate Parentheses</strong></p>",
+    "solutionJava": "class Solution {\n    public java.util.List<String> generateParenthesis(int n) {\n        java.util.List<String> res = new java.util.ArrayList<>();\n        backtrack(res, new StringBuilder(), 0, 0, n);\n        return res;\n    }\n    private void backtrack(java.util.List<String> res, StringBuilder cur, int open, int close, int n) {\n        if (cur.length() == 2 * n) { res.add(cur.toString()); return; }\n        if (open < n) { cur.append('('); backtrack(res, cur, open + 1, close, n); cur.deleteCharAt(cur.length() - 1); }\n        if (close < open) { cur.append(')'); backtrack(res, cur, open, close + 1, n); cur.deleteCharAt(cur.length() - 1); }\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "daily-temperatures",
+    "title": "Daily Temperatures",
+    "topic": "Stack",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Daily Temperatures</strong></p>",
+    "solutionJava": "class Solution {\n    public int[] dailyTemperatures(int[] T) {\n        int n = T.length; int[] res = new int[n];\n        java.util.Deque<Integer> st = new java.util.ArrayDeque<>(); // indices\n        for (int i = 0; i < n; i++) {\n            while (!st.isEmpty() && T[i] > T[st.peek()]) {\n                int j = st.pop();\n                res[j] = i - j;\n            }\n            st.push(i);\n        }\n        return res;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "car-fleet",
+    "title": "Car Fleet",
+    "topic": "Stack",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Car Fleet</strong></p>",
+    "solutionJava": "class Solution {\n    public int carFleet(int target, int[] position, int[] speed) {\n        int n = position.length;\n        int[][] cars = new int[n][2];\n        for (int i = 0; i < n; i++) { cars[i][0] = position[i]; cars[i][1] = speed[i]; }\n        java.util.Arrays.sort(cars, (a,b) -> Integer.compare(a[0], b[0]));\n        double lastTime = -1; int fleets = 0;\n        for (int i = n - 1; i >= 0; i--) {\n            double time = (double)(target - cars[i][0]) / cars[i][1];\n            if (time > lastTime) { fleets++; lastTime = time; }\n        }\n        return fleets;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "largest-rectangle-in-histogram",
+    "title": "Largest Rectangle in Histogram",
+    "topic": "Stack",
+    "difficulty": "Hard",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Largest Rectangle in Histogram</strong></p>",
+    "solutionJava": "class Solution {\n    public int largestRectangleArea(int[] h) {\n        int n = h.length; int best = 0;\n        java.util.Deque<Integer> st = new java.util.ArrayDeque<>();\n        for (int i = 0; i <= n; i++) {\n            int cur = (i == n) ? 0 : h[i];\n            while (!st.isEmpty() && cur < h[st.peek()]) {\n                int height = h[st.pop()];\n                int left = st.isEmpty() ? -1 : st.peek();\n                int width = i - left - 1;\n                best = Math.max(best, height * width);\n            }\n            st.push(i);\n        }\n        return best;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "binary-search",
+    "title": "Binary Search",
+    "topic": "Binary Search",
+    "difficulty": "Easy",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Binary Search</strong></p>",
+    "solutionJava": "class Solution {\n    public int search(int[] nums, int target) {\n        int l = 0, r = nums.length - 1;\n        while (l <= r) {\n            int m = l + (r - l) / 2;\n            if (nums[m] == target) return m;\n            if (nums[m] < target) l = m + 1; else r = m - 1;\n        }\n        return -1;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "search-a-2d-matrix",
+    "title": "Search a 2D Matrix",
+    "topic": "Binary Search",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Search a 2D Matrix</strong></p>",
+    "solutionJava": "class Solution {\n    public boolean searchMatrix(int[][] matrix, int target) {\n        int m = matrix.length, n = matrix[0].length;\n        int l = 0, r = m * n - 1;\n        while (l <= r) {\n            int mid = l + (r - l) / 2;\n            int val = matrix[mid / n][mid % n];\n            if (val == target) return true;\n            if (val < target) l = mid + 1; else r = mid - 1;\n        }\n        return false;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "koko-eating-bananas",
+    "title": "Koko Eating Bananas",
+    "topic": "Binary Search",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Koko Eating Bananas</strong></p>",
+    "solutionJava": "class Solution {\n    public int minEatingSpeed(int[] piles, int h) {\n        int hi = 0;\n        for (int p : piles) hi = Math.max(hi, p);\n        int lo = 1;\n        while (lo < hi) {\n            int mid = lo + (hi - lo) / 2;\n            long hours = 0;\n            for (int p : piles) hours += (p + mid - 1) / mid;\n            if (hours <= h) hi = mid; else lo = mid + 1;\n        }\n        return lo;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "find-minimum-in-rotated-sorted-array",
+    "title": "Find Minimum in Rotated Sorted Array",
+    "topic": "Binary Search",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Find Minimum in Rotated Sorted Array</strong></p>",
+    "solutionJava": "class Solution {\n    public int findMin(int[] nums) {\n        int l = 0, r = nums.length - 1;\n        while (l < r) {\n            int m = l + (r - l) / 2;\n            if (nums[m] > nums[r]) l = m + 1; else r = m;\n        }\n        return nums[l];\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "search-in-rotated-sorted-array",
+    "title": "Search in Rotated Sorted Array",
+    "topic": "Binary Search",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Search in Rotated Sorted Array</strong></p>",
+    "solutionJava": "class Solution {\n    public int search(int[] nums, int target) {\n        int l = 0, r = nums.length - 1;\n        while (l <= r) {\n            int m = l + (r - l) / 2;\n            if (nums[m] == target) return m;\n            if (nums[l] <= nums[m]) {\n                if (nums[l] <= target && target < nums[m]) r = m - 1; else l = m + 1;\n            } else {\n                if (nums[m] < target && target <= nums[r]) l = m + 1; else r = m - 1;\n            }\n        }\n        return -1;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "time-based-key-value-store",
+    "title": "Time Based Key-Value Store",
+    "topic": "Binary Search",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Time Based Key-Value Store</strong></p>",
+    "solutionJava": "class TimeMap {\n    static class Pair { int t; String v; Pair(int t, String v){ this.t=t; this.v=v; } }\n    private final java.util.Map<String, java.util.List<Pair>> map = new java.util.HashMap<>();\n    public void set(String key, String value, int timestamp) {\n        map.computeIfAbsent(key, k -> new java.util.ArrayList<>()).add(new Pair(timestamp, value));\n    }\n    public String get(String key, int timestamp) {\n        java.util.List<Pair> arr = map.get(key);\n        if (arr == null) return \"\";\n        int l = 0, r = arr.size() - 1, ans = -1;\n        while (l <= r) {\n            int m = l + (r - l) / 2;\n            if (arr.get(m).t <= timestamp) { ans = m; l = m + 1; } else r = m - 1;\n        }\n        return ans == -1 ? \"\" : arr.get(ans).v;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "implement-trie-prefix-tree",
+    "title": "Implement Trie (Prefix Tree)",
+    "topic": "Tries",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Implement Trie</strong></p>",
+    "solutionJava": "class Trie {\n    static class Node { Node[] ch = new Node[26]; boolean end; }\n    private final Node root = new Node();\n    public void insert(String word) {\n        Node cur = root;\n        for (char c : word.toCharArray()) {\n            int i = c - 'a';\n            if (cur.ch[i] == null) cur.ch[i] = new Node();\n            cur = cur.ch[i];\n        }\n        cur.end = true;\n    }\n    public boolean search(String word) {\n        Node n = walk(word);\n        return n != null && n.end;\n    }\n    public boolean startsWith(String pfx) {\n        return walk(pfx) != null;\n    }\n    private Node walk(String s) {\n        Node cur = root;\n        for (char c : s.toCharArray()) {\n            int i = c - 'a';\n            if (cur.ch[i] == null) return null;\n            cur = cur.ch[i];\n        }\n        return cur;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "design-add-and-search-words-data-structure",
+    "title": "Design Add and Search Words Data Structure",
+    "topic": "Tries",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Word Dictionary</strong></p>",
+    "solutionJava": "class WordDictionary {\n    static class Node { Node[] ch = new Node[26]; boolean end; }\n    private final Node root = new Node();\n    public void addWord(String word) {\n        Node cur = root;\n        for (char c : word.toCharArray()) {\n            int i = c - 'a';\n            if (cur.ch[i] == null) cur.ch[i] = new Node();\n            cur = cur.ch[i];\n        }\n        cur.end = true;\n    }\n    public boolean search(String word) {\n        return dfs(root, word, 0);\n    }\n    private boolean dfs(Node node, String w, int i) {\n        if (node == null) return false;\n        if (i == w.length()) return node.end;\n        char c = w.charAt(i);\n        if (c == '.') {\n            for (Node nxt : node.ch) { if (dfs(nxt, w, i + 1)) return true; }\n            return false;\n        } else {\n            return dfs(node.ch[c - 'a'], w, i + 1);\n        }\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "word-search-ii",
+    "title": "Word Search II",
+    "topic": "Tries",
+    "difficulty": "Hard",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Word Search II</strong></p>",
+    "solutionJava": "class Solution {\n    static class Node { Node[] ch = new Node[26]; String word; }\n    private Node build(java.util.List<String> words) {\n        Node r = new Node();\n        for (String w : words) {\n            Node cur = r;\n            for (char c : w.toCharArray()) {\n                int i = c - 'a';\n                if (cur.ch[i] == null) cur.ch[i] = new Node();\n                cur = cur.ch[i];\n            }\n            cur.word = w;\n        }\n        return r;\n    }\n    public java.util.List<String> findWords(char[][] board, String[] words) {\n        Node root = build(java.util.Arrays.asList(words));\n        java.util.List<String> res = new java.util.ArrayList<>();\n        int m = board.length, n = board[0].length;\n        boolean[][] vis = new boolean[m][n];\n        for (int i = 0; i < m; i++)\n            for (int j = 0; j < n; j++)\n                dfs(board, i, j, root, vis, res);\n        return res;\n    }\n    private void dfs(char[][] b, int i, int j, Node node, boolean[][] vis, java.util.List<String> res) {\n        if (i < 0 || j < 0 || i >= b.length || j >= b[0].length || vis[i][j]) return;\n        Node nxt = node.ch[b[i][j] - 'a'];\n        if (nxt == null) return;\n        vis[i][j] = true;\n        if (nxt.word != null) { res.add(nxt.word); nxt.word = null; }\n        dfs(b, i+1, j, nxt, vis, res);\n        dfs(b, i-1, j, nxt, vis, res);\n        dfs(b, i, j+1, nxt, vis, res);\n        dfs(b, i, j-1, nxt, vis, res);\n        vis[i][j] = false;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "kth-largest-element-in-a-stream",
+    "title": "Kth Largest Element in a Stream",
+    "topic": "Heap / Priority Queue",
+    "difficulty": "Easy",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Kth Largest Element in a Stream</strong></p>",
+    "solutionJava": "class KthLargest {\n    private final int k;\n    private final java.util.PriorityQueue<Integer> pq = new java.util.PriorityQueue<>();\n    public KthLargest(int k, int[] nums) {\n        this.k = k;\n        for (int n : nums) add(n);\n    }\n    public int add(int val) {\n        pq.offer(val);\n        if (pq.size() > k) pq.poll();\n        return pq.peek();\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "last-stone-weight",
+    "title": "Last Stone Weight",
+    "topic": "Heap / Priority Queue",
+    "difficulty": "Easy",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Last Stone Weight</strong></p>",
+    "solutionJava": "class Solution {\n    public int lastStoneWeight(int[] stones) {\n        java.util.PriorityQueue<Integer> pq = new java.util.PriorityQueue<>(java.util.Collections.reverseOrder());\n        for (int s : stones) pq.offer(s);\n        while (pq.size() > 1) {\n            int a = pq.poll(), b = pq.poll();\n            if (a != b) pq.offer(a - b);\n        }\n        return pq.isEmpty() ? 0 : pq.peek();\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "subsets",
+    "title": "Subsets",
+    "topic": "Backtracking",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Subsets</strong></p>",
+    "solutionJava": "class Solution {\n    public java.util.List<java.util.List<Integer>> subsets(int[] nums) {\n        java.util.List<java.util.List<Integer>> res = new java.util.ArrayList<>();\n        backtrack(0, nums, new java.util.ArrayList<>(), res);\n        return res;\n    }\n    private void backtrack(int start, int[] nums, java.util.List<Integer> cur, java.util.List<java.util.List<Integer>> res) {\n        res.add(new java.util.ArrayList<>(cur));\n        for (int i = start; i < nums.length; i++) {\n            cur.add(nums[i]);\n            backtrack(i + 1, nums, cur, res);\n            cur.remove(cur.size() - 1);\n        }\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "combination-sum",
+    "title": "Combination Sum",
+    "topic": "Backtracking",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Combination Sum</strong></p>",
+    "solutionJava": "class Solution {\n    public java.util.List<java.util.List<Integer>> combinationSum(int[] candidates, int target) {\n        java.util.Arrays.sort(candidates);\n        java.util.List<java.util.List<Integer>> res = new java.util.ArrayList<>();\n        dfs(0, target, candidates, new java.util.ArrayList<>(), res);\n        return res;\n    }\n    private void dfs(int idx, int target, int[] c, java.util.List<Integer> cur, java.util.List<java.util.List<Integer>> res) {\n        if (target == 0) { res.add(new java.util.ArrayList<>(cur)); return; }\n        if (idx == c.length || target < 0) return;\n        cur.add(c[idx]);\n        dfs(idx, target - c[idx], c, cur, res);\n        cur.remove(cur.size() - 1);\n        dfs(idx + 1, target, c, cur, res);\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "permutations",
+    "title": "Permutations",
+    "topic": "Backtracking",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Permutations</strong></p>",
+    "solutionJava": "class Solution {\n    public java.util.List<java.util.List<Integer>> permute(int[] nums) {\n        java.util.List<java.util.List<Integer>> res = new java.util.ArrayList<>();\n        boolean[] used = new boolean[nums.length];\n        backtrack(nums, used, new java.util.ArrayList<>(), res);\n        return res;\n    }\n    private void backtrack(int[] nums, boolean[] used, java.util.List<Integer> cur, java.util.List<java.util.List<Integer>> res) {\n        if (cur.size() == nums.length) { res.add(new java.util.ArrayList<>(cur)); return; }\n        for (int i = 0; i < nums.length; i++) {\n            if (used[i]) continue;\n            used[i] = true;\n            cur.add(nums[i]);\n            backtrack(nums, used, cur, res);\n            cur.remove(cur.size() - 1);\n            used[i] = false;\n        }\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "subsets-ii",
+    "title": "Subsets II",
+    "topic": "Backtracking",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Subsets II</strong></p>",
+    "solutionJava": "class Solution {\n    public java.util.List<java.util.List<Integer>> subsetsWithDup(int[] nums) {\n        java.util.Arrays.sort(nums);\n        java.util.List<java.util.List<Integer>> res = new java.util.ArrayList<>();\n        backtrack(0, nums, new java.util.ArrayList<>(), res);\n        return res;\n    }\n    private void backtrack(int start, int[] nums, java.util.List<Integer> cur, java.util.List<java.util.List<Integer>> res) {\n        res.add(new java.util.ArrayList<>(cur));\n        for (int i = start; i < nums.length; i++) {\n            if (i > start && nums[i] == nums[i - 1]) continue;\n            cur.add(nums[i]);\n            backtrack(i + 1, nums, cur, res);\n            cur.remove(cur.size() - 1);\n        }\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "combination-sum-ii",
+    "title": "Combination Sum II",
+    "topic": "Backtracking",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Combination Sum II</strong></p>",
+    "solutionJava": "class Solution {\n    public java.util.List<java.util.List<Integer>> combinationSum2(int[] candidates, int target) {\n        java.util.Arrays.sort(candidates);\n        java.util.List<java.util.List<Integer>> res = new java.util.ArrayList<>();\n        dfs(0, target, candidates, new java.util.ArrayList<>(), res);\n        return res;\n    }\n    private void dfs(int start, int target, int[] c, java.util.List<Integer> cur, java.util.List<java.util.List<Integer>> res) {\n        if (target == 0) { res.add(new java.util.ArrayList<>(cur)); return; }\n        for (int i = start; i < c.length; i++) {\n            if (i > start && c[i] == c[i - 1]) continue;\n            if (c[i] > target) break;\n            cur.add(c[i]);\n            dfs(i + 1, target - c[i], c, cur, res);\n            cur.remove(cur.size() - 1);\n        }\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "word-search",
+    "title": "Word Search",
+    "topic": "Backtracking",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Word Search</strong></p>",
+    "solutionJava": "class Solution {\n    public boolean exist(char[][] board, String word) {\n        int m = board.length, n = board[0].length;\n        boolean[][] vis = new boolean[m][n];\n        for (int i = 0; i < m; i++) {\n            for (int j = 0; j < n; j++) {\n                if (dfs(board, word, 0, i, j, vis)) return true;\n            }\n        }\n        return false;\n    }\n    private boolean dfs(char[][] b, String w, int k, int i, int j, boolean[][] vis) {\n        if (k == w.length()) return true;\n        if (i < 0 || j < 0 || i >= b.length || j >= b[0].length || vis[i][j] || b[i][j] != w.charAt(k)) return false;\n        vis[i][j] = true;\n        boolean ok = dfs(b, w, k + 1, i + 1, j, vis) || dfs(b, w, k + 1, i - 1, j, vis) || dfs(b, w, k + 1, i, j + 1, vis) || dfs(b, w, k + 1, i, j - 1, vis);\n        vis[i][j] = false;\n        return ok;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "palindrome-partitioning",
+    "title": "Palindrome Partitioning",
+    "topic": "Backtracking",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Palindrome Partitioning</strong></p>",
+    "solutionJava": "class Solution {\n    public java.util.List<java.util.List<String>> partition(String s) {\n        int n = s.length();\n        boolean[][] pal = new boolean[n][n];\n        for (int i = n - 1; i >= 0; i--) {\n            for (int j = i; j < n; j++) {\n                pal[i][j] = s.charAt(i) == s.charAt(j) && (j - i < 2 || pal[i + 1][j - 1]);\n            }\n        }\n        java.util.List<java.util.List<String>> res = new java.util.ArrayList<>();\n        dfs(0, s, pal, new java.util.ArrayList<>(), res);\n        return res;\n    }\n    private void dfs(int start, String s, boolean[][] pal, java.util.List<String> cur, java.util.List<java.util.List<String>> res) {\n        if (start == s.length()) { res.add(new java.util.ArrayList<>(cur)); return; }\n        for (int end = start; end < s.length(); end++) {\n            if (pal[start][end]) {\n                cur.add(s.substring(start, end + 1));\n                dfs(end + 1, s, pal, cur, res);\n                cur.remove(cur.size() - 1);\n            }\n        }\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "letter-combinations-of-a-phone-number",
+    "title": "Letter Combinations of a Phone Number",
+    "topic": "Backtracking",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Letter Combinations of a Phone Number</strong></p>",
+    "solutionJava": "class Solution {\n    private static final String[] map = {\"\", \"\", \"abc\", \"def\", \"ghi\", \"jkl\", \"mno\", \"pqrs\", \"tuv\", \"wxyz\"};\n    public java.util.List<String> letterCombinations(String digits) {\n        java.util.List<String> res = new java.util.ArrayList<>();\n        if (digits == null || digits.isEmpty()) return res;\n        backtrack(0, digits, new StringBuilder(), res);\n        return res;\n    }\n    private void backtrack(int idx, String d, StringBuilder cur, java.util.List<String> res) {\n        if (idx == d.length()) { res.add(cur.toString()); return; }\n        String letters = map[d.charAt(idx) - '0'];\n        for (char c : letters.toCharArray()) {\n            cur.append(c);\n            backtrack(idx + 1, d, cur, res);\n            cur.deleteCharAt(cur.length() - 1);\n        }\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "n-queens",
+    "title": "N-Queens",
+    "topic": "Backtracking",
+    "difficulty": "Hard",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>N-Queens</strong></p>",
+    "solutionJava": "class Solution {\n    public java.util.List<java.util.List<String>> solveNQueens(int n) {\n        java.util.List<java.util.List<String>> res = new java.util.ArrayList<>();\n        char[][] board = new char[n][n];\n        for (char[] row : board) java.util.Arrays.fill(row, '.');\n        boolean[] cols = new boolean[n];\n        boolean[] d1 = new boolean[2 * n];\n        boolean[] d2 = new boolean[2 * n];\n        backtrack(0, n, board, cols, d1, d2, res);\n        return res;\n    }\n    private void backtrack(int r, int n, char[][] board, boolean[] cols, boolean[] d1, boolean[] d2, java.util.List<java.util.List<String>> res) {\n        if (r == n) {\n            java.util.List<String> out = new java.util.ArrayList<>();\n            for (int i = 0; i < n; i++) out.add(new String(board[i]));\n            res.add(out);\n            return;\n        }\n        for (int c = 0; c < n; c++) {\n            int id1 = r + c, id2 = r - c + n;\n            if (cols[c] || d1[id1] || d2[id2]) continue;\n            cols[c] = d1[id1] = d2[id2] = true;\n            board[r][c] = 'Q';\n            backtrack(r + 1, n, board, cols, d1, d2, res);\n            board[r][c] = '.';\n            cols[c] = d1[id1] = d2[id2] = false;\n        }\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "reconstruct-itinerary",
+    "title": "Reconstruct Itinerary",
+    "topic": "Backtracking",
+    "difficulty": "Hard",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Reconstruct Itinerary</strong></p>",
+    "solutionJava": "class Solution {\n    public java.util.List<String> findItinerary(java.util.List<java.util.List<String>> tickets) {\n        java.util.Map<String, java.util.PriorityQueue<String>> g = new java.util.HashMap<>();\n        for (java.util.List<String> t : tickets) {\n            g.computeIfAbsent(t.get(0), k -> new java.util.PriorityQueue<>()).offer(t.get(1));\n        }\n        java.util.LinkedList<String> route = new java.util.LinkedList<>();\n        dfs(\"JFK\", g, route);\n        return route;\n    }\n    private void dfs(String u, java.util.Map<String, java.util.PriorityQueue<String>> g, java.util.LinkedList<String> route) {\n        java.util.PriorityQueue<String> pq = g.get(u);\n        while (pq != null && !pq.isEmpty()) {\n            dfs(pq.poll(), g, route);\n        }\n        route.addFirst(u);\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "graph-valid-tree",
+    "title": "Graph Valid Tree",
+    "topic": "Graphs",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Graph Valid Tree</strong></p>",
+    "solutionJava": "class Solution {\n    public boolean validTree(int n, int[][] edges) {\n        if (edges.length != n - 1) return false;\n        int[] parent = new int[n];\n        for (int i = 0; i < n; i++) parent[i] = i;\n        int[] rank = new int[n];\n        for (int[] e : edges) {\n            if (!union(e[0], e[1], parent, rank)) return false;\n        }\n        return true;\n    }\n    private int find(int x, int[] p) { return p[x] == x ? x : (p[x] = find(p[x], p)); }\n    private boolean union(int a, int b, int[] p, int[] r) {\n        int pa = find(a, p), pb = find(b, p);\n        if (pa == pb) return false;\n        if (r[pa] < r[pb]) p[pa] = pb;\n        else if (r[pa] > r[pb]) p[pb] = pa;\n        else { p[pb] = pa; r[pa]++; }\n        return true;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "number-of-connected-components-in-an-undirected-graph",
+    "title": "Number of Connected Components in an Undirected Graph",
+    "topic": "Graphs",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Connected Components</strong></p>",
+    "solutionJava": "class Solution {\n    public int countComponents(int n, int[][] edges) {\n        java.util.List<Integer>[] g = new java.util.ArrayList[n];\n        for (int i = 0; i < n; i++) g[i] = new java.util.ArrayList<>();\n        for (int[] e : edges) { g[e[0]].add(e[1]); g[e[1]].add(e[0]); }\n        boolean[] vis = new boolean[n];\n        int cnt = 0;\n        java.util.Deque<Integer> dq = new java.util.ArrayDeque<>();\n        for (int i = 0; i < n; i++) {\n            if (vis[i]) continue;\n            cnt++;\n            vis[i] = true; dq.offer(i);\n            while (!dq.isEmpty()) {\n                int u = dq.poll();\n                for (int v : g[u]) if (!vis[v]) { vis[v] = true; dq.offer(v); }\n            }\n        }\n        return cnt;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "clone-graph",
+    "title": "Clone Graph",
+    "topic": "Graphs",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Clone Graph</strong></p>",
+    "solutionJava": "/*\n// Node definition used by online judge:\nclass Node { public int val; public java.util.List<Node> neighbors; public Node() { val = 0; neighbors = new java.util.ArrayList<Node>(); } public Node(int _val) { val = _val; neighbors = new java.util.ArrayList<Node>(); } public Node(int _val, java.util.ArrayList<Node> _neighbors) { val = _val; neighbors = _neighbors; } }\n*/\nclass Solution {\n    public Node cloneGraph(Node node) {\n        if (node == null) return null;\n        java.util.Map<Node, Node> map = new java.util.HashMap<>();\n        return dfs(node, map);\n    }\n    private Node dfs(Node node, java.util.Map<Node, Node> map) {\n        if (map.containsKey(node)) return map.get(node);\n        Node copy = new Node(node.val);\n        map.put(node, copy);\n        for (Node nei : node.neighbors) copy.neighbors.add(dfs(nei, map));\n        return copy;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "course-schedule",
+    "title": "Course Schedule",
+    "topic": "Graphs",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Course Schedule</strong></p>",
+    "solutionJava": "class Solution {\n    public boolean canFinish(int numCourses, int[][] prerequisites) {\n        java.util.List<Integer>[] g = new java.util.ArrayList[numCourses];\n        int[] indeg = new int[numCourses];\n        for (int i = 0; i < numCourses; i++) g[i] = new java.util.ArrayList<>();\n        for (int[] p : prerequisites) { g[p[1]].add(p[0]); indeg[p[0]]++; }\n        java.util.Deque<Integer> dq = new java.util.ArrayDeque<>();\n        for (int i = 0; i < numCourses; i++) if (indeg[i] == 0) dq.offer(i);\n        int seen = 0;\n        while (!dq.isEmpty()) {\n            int u = dq.poll(); seen++;\n            for (int v : g[u]) if (--indeg[v] == 0) dq.offer(v);\n        }\n        return seen == numCourses;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "course-schedule-ii",
+    "title": "Course Schedule II",
+    "topic": "Graphs",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Course Schedule II</strong></p>",
+    "solutionJava": "class Solution {\n    public int[] findOrder(int numCourses, int[][] prerequisites) {\n        java.util.List<Integer>[] g = new java.util.ArrayList[numCourses];\n        int[] indeg = new int[numCourses];\n        for (int i = 0; i < numCourses; i++) g[i] = new java.util.ArrayList<>();\n        for (int[] p : prerequisites) { g[p[1]].add(p[0]); indeg[p[0]]++; }\n        java.util.Deque<Integer> dq = new java.util.ArrayDeque<>();\n        for (int i = 0; i < numCourses; i++) if (indeg[i] == 0) dq.offer(i);\n        int[] order = new int[numCourses]; int idx = 0;\n        while (!dq.isEmpty()) {\n            int u = dq.poll(); order[idx++] = u;\n            for (int v : g[u]) if (--indeg[v] == 0) dq.offer(v);\n        }\n        return idx == numCourses ? order : new int[0];\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "pacific-atlantic-water-flow",
+    "title": "Pacific Atlantic Water Flow",
+    "topic": "Graphs",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Pacific Atlantic Water Flow</strong></p>",
+    "solutionJava": "class Solution {\n    public java.util.List<java.util.List<Integer>> pacificAtlantic(int[][] heights) {\n        int m = heights.length, n = heights[0].length;\n        boolean[][] pac = new boolean[m][n], atl = new boolean[m][n];\n        java.util.Deque<int[]> dq = new java.util.ArrayDeque<>();\n        for (int i = 0; i < m; i++) { dq.offer(new int[]{i,0}); pac[i][0] = true; dq.offer(new int[]{i,n-1}); atl[i][n-1] = true; }\n        for (int j = 0; j < n; j++) { dq.offer(new int[]{0,j}); pac[0][j] = true; dq.offer(new int[]{m-1,j}); atl[m-1][j] = true; }\n        bfs(heights, pac); bfs(heights, atl);\n        java.util.List<java.util.List<Integer>> res = new java.util.ArrayList<>();\n        for (int i = 0; i < m; i++) for (int j = 0; j < n; j++) if (pac[i][j] && atl[i][j]) res.add(java.util.Arrays.asList(i,j));\n        return res;\n    }\n    private void bfs(int[][] h, boolean[][] vis) {\n        int m = h.length, n = h[0].length;\n        java.util.Deque<int[]> q = new java.util.ArrayDeque<>();\n        for (int i = 0; i < m; i++) { if (vis[i][0]) q.offer(new int[]{i,0}); if (vis[i][n-1]) q.offer(new int[]{i,n-1}); }\n        for (int j = 0; j < n; j++) { if (vis[0][j]) q.offer(new int[]{0,j}); if (vis[m-1][j]) q.offer(new int[]{m-1,j}); }\n        int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};\n        while (!q.isEmpty()) {\n            int[] p = q.poll(); int i = p[0], j = p[1];\n            for (int[] d : dirs) { int ni = i + d[0], nj = j + d[1];\n                if (ni<0||nj<0||ni>=m||nj>=n||vis[ni][nj]||h[ni][nj] < h[i][j]) continue;\n                vis[ni][nj] = true; q.offer(new int[]{ni,nj});\n            }\n        }\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "number-of-islands",
+    "title": "Number of Islands",
+    "topic": "Graphs",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Number of Islands</strong></p>",
+    "solutionJava": "class Solution {\n    public int numIslands(char[][] grid) {\n        int m = grid.length, n = grid[0].length, cnt = 0;\n        for (int i = 0; i < m; i++) {\n            for (int j = 0; j < n; j++) {\n                if (grid[i][j] == '1') { cnt++; dfs(grid, i, j); }\n            }\n        }\n        return cnt;\n    }\n    private void dfs(char[][] g, int i, int j) {\n        if (i<0||j<0||i>=g.length||j>=g[0].length||g[i][j] != '1') return;\n        g[i][j] = '0';\n        dfs(g, i+1, j); dfs(g, i-1, j); dfs(g, i, j+1); dfs(g, i, j-1);\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "max-area-of-island",
+    "title": "Max Area of Island",
+    "topic": "Graphs",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Max Area of Island</strong></p>",
+    "solutionJava": "class Solution {\n    public int maxAreaOfIsland(int[][] grid) {\n        int m = grid.length, n = grid[0].length, best = 0;\n        for (int i = 0; i < m; i++) for (int j = 0; j < n; j++) if (grid[i][j] == 1) best = Math.max(best, dfs(grid, i, j));\n        return best;\n    }\n    private int dfs(int[][] g, int i, int j) {\n        if (i<0||j<0||i>=g.length||j>=g[0].length||g[i][j] != 1) return 0;\n        g[i][j] = 0;\n        return 1 + dfs(g,i+1,j) + dfs(g,i-1,j) + dfs(g,i,j+1) + dfs(g,i,j-1);\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "surrounded-regions",
+    "title": "Surrounded Regions",
+    "topic": "Graphs",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Surrounded Regions</strong></p>",
+    "solutionJava": "class Solution {\n    public void solve(char[][] board) {\n        int m = board.length, n = board[0].length;\n        java.util.Deque<int[]> q = new java.util.ArrayDeque<>();\n        for (int i = 0; i < m; i++) { if (board[i][0]=='O') q.offer(new int[]{i,0}); if (board[i][n-1]=='O') q.offer(new int[]{i,n-1}); }\n        for (int j = 0; j < n; j++) { if (board[0][j]=='O') q.offer(new int[]{0,j}); if (board[m-1][j]=='O') q.offer(new int[]{m-1,j}); }\n        while (!q.isEmpty()) { int[] p = q.poll(); int i=p[0], j=p[1]; if (i<0||j<0||i>=m||j>=n||board[i][j] != 'O') continue; board[i][j] = '#'; q.offer(new int[]{i+1,j}); q.offer(new int[]{i-1,j}); q.offer(new int[]{i,j+1}); q.offer(new int[]{i,j-1}); }\n        for (int i = 0; i < m; i++) for (int j = 0; j < n; j++) board[i][j] = (board[i][j] == '#') ? 'O' : 'X';\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "rotting-oranges",
+    "title": "Rotting Oranges",
+    "topic": "Graphs",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Rotting Oranges</strong></p>",
+    "solutionJava": "class Solution {\n    public int orangesRotting(int[][] grid) {\n        int m = grid.length, n = grid[0].length;\n        java.util.Deque<int[]> q = new java.util.ArrayDeque<>();\n        int fresh = 0;\n        for (int i = 0; i < m; i++) for (int j = 0; j < n; j++) { if (grid[i][j] == 2) q.offer(new int[]{i,j}); if (grid[i][j] == 1) fresh++; }\n        int minutes = 0; int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};\n        while (!q.isEmpty() && fresh > 0) {\n            for (int sz = q.size(); sz > 0; sz--) {\n                int[] p = q.poll();\n                for (int[] d : dirs) { int ni = p[0]+d[0], nj = p[1]+d[1];\n                    if (ni<0||nj<0||ni>=m||nj>=n||grid[ni][nj] != 1) continue;\n                    grid[ni][nj] = 2; fresh--; q.offer(new int[]{ni,nj});\n                }\n            }\n            minutes++;\n        }\n        return fresh == 0 ? minutes : -1;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "walls-and-gates",
+    "title": "Walls and Gates",
+    "topic": "Graphs",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Walls and Gates</strong></p>",
+    "solutionJava": "class Solution {\n    public void wallsAndGates(int[][] rooms) {\n        int m = rooms.length, n = rooms[0].length;\n        java.util.Deque<int[]> q = new java.util.ArrayDeque<>();\n        for (int i = 0; i < m; i++) for (int j = 0; j < n; j++) if (rooms[i][j] == 0) q.offer(new int[]{i,j});\n        int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};\n        while (!q.isEmpty()) {\n            int[] p = q.poll(); int i=p[0], j=p[1];\n            for (int[] d : dirs) { int ni=i+d[0], nj=j+d[1];\n                if (ni<0||nj<0||ni>=m||nj>=n||rooms[ni][nj] != 2147483647) continue;\n                rooms[ni][nj] = rooms[i][j] + 1;\n                q.offer(new int[]{ni,nj});\n            }\n        }\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "word-ladder",
+    "title": "Word Ladder",
+    "topic": "Graphs",
+    "difficulty": "Hard",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Word Ladder</strong></p>",
+    "solutionJava": "class Solution {\n    public int ladderLength(String beginWord, String endWord, java.util.List<String> wordList) {\n        java.util.Set<String> dict = new java.util.HashSet<>(wordList);\n        if (!dict.contains(endWord)) return 0;\n        java.util.Deque<String> q = new java.util.ArrayDeque<>();\n        q.offer(beginWord);\n        int steps = 1;\n        while (!q.isEmpty()) {\n            for (int sz = q.size(); sz > 0; sz--) {\n                String w = q.poll();\n                if (w.equals(endWord)) return steps;\n                char[] arr = w.toCharArray();\n                for (int i = 0; i < arr.length; i++) {\n                    char old = arr[i];\n                    for (char c = 'a'; c <= 'z'; c++) {\n                        if (c == old) continue;\n                        arr[i] = c; String nw = new String(arr);\n                        if (dict.remove(nw)) q.offer(nw);\n                    }\n                    arr[i] = old;\n                }\n            }\n            steps++;\n        }\n        return 0;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "minimum-genetic-mutation",
+    "title": "Minimum Genetic Mutation",
+    "topic": "Graphs",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Minimum Genetic Mutation</strong></p>",
+    "solutionJava": "class Solution {\n    public int minMutation(String start, String end, String[] bank) {\n        java.util.Set<String> dict = new java.util.HashSet<>(java.util.Arrays.asList(bank));\n        if (!dict.contains(end)) return -1;\n        char[] genes = new char[]{'A','C','G','T'};\n        java.util.Deque<String> q = new java.util.ArrayDeque<>();\n        q.offer(start);\n        int steps = 0;\n        while (!q.isEmpty()) {\n            for (int sz = q.size(); sz > 0; sz--) {\n                String cur = q.poll();\n                if (cur.equals(end)) return steps;\n                char[] arr = cur.toCharArray();\n                for (int i = 0; i < arr.length; i++) {\n                    char old = arr[i];\n                    for (char g : genes) {\n                        if (g == old) continue;\n                        arr[i] = g;\n                        String nxt = new String(arr);\n                        if (dict.remove(nxt)) q.offer(nxt);\n                    }\n                    arr[i] = old;\n                }\n            }\n            steps++;\n        }\n        return -1;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "alien-dictionary",
+    "title": "Alien Dictionary",
+    "topic": "Graphs",
+    "difficulty": "Hard",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Alien Dictionary</strong></p>",
+    "solutionJava": "class Solution {\n    public String alienOrder(String[] words) {\n        java.util.Map<Character, java.util.Set<Character>> g = new java.util.HashMap<>();\n        int[] indeg = new int[26]; java.util.Arrays.fill(indeg, -1);\n        for (String w : words) for (char c : w.toCharArray()) if (indeg[c-'a'] == -1) { indeg[c-'a'] = 0; g.putIfAbsent(c, new java.util.HashSet<>()); }\n        for (int i = 0; i < words.length - 1; i++) {\n            String a = words[i], b = words[i+1];\n            int m = Math.min(a.length(), b.length());\n            int j = 0;\n            while (j < m && a.charAt(j) == b.charAt(j)) j++;\n            if (j == m) { if (a.length() > b.length()) return \"\"; continue; }\n            char u = a.charAt(j), v = b.charAt(j);\n            if (g.get(u).add(v)) indeg[v-'a']++;\n        }\n        java.util.Deque<Character> q = new java.util.ArrayDeque<>();\n        for (char c : g.keySet()) if (indeg[c-'a'] == 0) q.offer(c);\n        StringBuilder sb = new StringBuilder();\n        while (!q.isEmpty()) {\n            char u = q.poll(); sb.append(u);\n            for (char v : g.get(u)) {\n                int idx = v - 'a';\n                if (--indeg[idx] == 0) q.offer(v);\n            }\n        }\n        return sb.length() == g.size() ? sb.toString() : \"\";\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "cheapest-flights-within-k-stops",
+    "title": "Cheapest Flights Within K Stops",
+    "topic": "Graphs",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Cheapest Flights Within K Stops</strong></p>",
+    "solutionJava": "class Solution {\n    public int findCheapestPrice(int n, int[][] flights, int src, int dst, int k) {\n        int INF = 1_000_000_000;\n        int[] dist = new int[n]; java.util.Arrays.fill(dist, INF); dist[src] = 0;\n        for (int i = 0; i <= k; i++) {\n            int[] nd = dist.clone();\n            for (int[] f : flights) {\n                int u = f[0], v = f[1], w = f[2];\n                if (dist[u] == INF) continue;\n                nd[v] = Math.min(nd[v], dist[u] + w);\n            }\n            dist = nd;\n        }\n        return dist[dst] >= INF ? -1 : dist[dst];\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "network-delay-time",
+    "title": "Network Delay Time",
+    "topic": "Graphs",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Network Delay Time</strong></p>",
+    "solutionJava": "class Solution {\n    public int networkDelayTime(int[][] times, int n, int k) {\n        java.util.List<int[]>[] g = new java.util.ArrayList[n+1];\n        for (int i = 1; i <= n; i++) g[i] = new java.util.ArrayList<>();\n        for (int[] e : times) g[e[0]].add(new int[]{e[1], e[2]});\n        int[] dist = new int[n+1]; java.util.Arrays.fill(dist, Integer.MAX_VALUE); dist[k] = 0;\n        java.util.PriorityQueue<int[]> pq = new java.util.PriorityQueue<>((a,b)->Integer.compare(a[1], b[1]));\n        pq.offer(new int[]{k, 0});\n        boolean[] vis = new boolean[n+1];\n        while (!pq.isEmpty()) {\n            int[] cur = pq.poll(); int u = cur[0];\n            if (vis[u]) continue; vis[u] = true;\n            for (int[] e : g[u]) { int v = e[0], w = e[1];\n                if (dist[u] != Integer.MAX_VALUE && dist[u] + w < dist[v]) { dist[v] = dist[u] + w; pq.offer(new int[]{v, dist[v]}); }\n            }\n        }\n        int ans = 0;\n        for (int i = 1; i <= n; i++) { if (dist[i] == Integer.MAX_VALUE) return -1; ans = Math.max(ans, dist[i]); }\n        return ans;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "swim-in-rising-water",
+    "title": "Swim in Rising Water",
+    "topic": "Graphs",
+    "difficulty": "Hard",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Swim in Rising Water</strong></p>",
+    "solutionJava": "class Solution {\n    public int swimInWater(int[][] grid) {\n        int n = grid.length;\n        java.util.PriorityQueue<int[]> pq = new java.util.PriorityQueue<>((a,b)->Integer.compare(a[2], b[2]));\n        boolean[][] vis = new boolean[n][n];\n        pq.offer(new int[]{0,0,grid[0][0]});\n        int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};\n        while (!pq.isEmpty()) {\n            int[] cur = pq.poll(); int i = cur[0], j = cur[1], t = cur[2];\n            if (vis[i][j]) continue; vis[i][j] = true;\n            if (i == n-1 && j == n-1) return t;\n            for (int[] d : dirs) { int ni = i + d[0], nj = j + d[1];\n                if (ni<0||nj<0||ni>=n||nj>=n||vis[ni][nj]) continue;\n                pq.offer(new int[]{ni, nj, Math.max(t, grid[ni][nj])});\n            }\n        }\n        return -1;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "min-cost-to-connect-all-points",
+    "title": "Min Cost to Connect All Points",
+    "topic": "Graphs",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Min Cost to Connect All Points</strong></p>",
+    "solutionJava": "class Solution {\n    public int minCostConnectPoints(int[][] points) {\n        int n = points.length;\n        int[] minD = new int[n]; java.util.Arrays.fill(minD, Integer.MAX_VALUE);\n        boolean[] inMST = new boolean[n];\n        minD[0] = 0; int cost = 0;\n        for (int it = 0; it < n; it++) {\n            int u = -1;\n            for (int i = 0; i < n; i++) if (!inMST[i] && (u == -1 || minD[i] < minD[u])) u = i;\n            inMST[u] = true; cost += minD[u];\n            for (int v = 0; v < n; v++) {\n                if (!inMST[v]) {\n                    int w = Math.abs(points[u][0] - points[v][0]) + Math.abs(points[u][1] - points[v][1]);\n                    if (w < minD[v]) minD[v] = w;\n                }\n            }\n        }\n        return cost;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "number-of-provinces",
+    "title": "Number of Provinces",
+    "topic": "Graphs",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Number of Provinces</strong></p>",
+    "solutionJava": "class Solution {\n    public int findCircleNum(int[][] isConnected) {\n        int n = isConnected.length; boolean[] vis = new boolean[n]; int cnt = 0;\n        for (int i = 0; i < n; i++) {\n            if (vis[i]) continue; cnt++; dfs(i, isConnected, vis);\n        }\n        return cnt;\n    }\n    private void dfs(int u, int[][] g, boolean[] vis) {\n        vis[u] = true;\n        for (int v = 0; v < g.length; v++) { if (g[u][v] == 1 && !vis[v]) dfs(v, g, vis); }\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "evaluate-reverse-polish-notation",
+    "title": "Evaluate Reverse Polish Notation",
+    "topic": "Stack",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Evaluate Reverse Polish Notation</strong></p>",
+    "solutionJava": "class Solution {\n    public int evalRPN(String[] tokens) {\n        java.util.Deque<Integer> st = new java.util.ArrayDeque<>();\n        for (String t : tokens) {\n            switch (t) {\n                case \"+\": { int b = st.pop(), a = st.pop(); st.push(a + b); break; }\n                case \"-\": { int b = st.pop(), a = st.pop(); st.push(a - b); break; }\n                case \"*\": { int b = st.pop(), a = st.pop(); st.push(a * b); break; }\n                case \"/\": { int b = st.pop(), a = st.pop(); st.push(a / b); break; }\n                default: st.push(Integer.parseInt(t));\n            }\n        }\n        return st.pop();\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "min-stack",
+    "title": "Min Stack",
+    "topic": "Stack",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Min Stack</strong></p>",
+    "solutionJava": "class MinStack {\n    private final java.util.Deque<Integer> st = new java.util.ArrayDeque<>();\n    private final java.util.Deque<Integer> mn = new java.util.ArrayDeque<>();\n    public void push(int val) {\n        st.push(val);\n        if (mn.isEmpty() || val <= mn.peek()) mn.push(val);\n    }\n    public void pop() {\n        int v = st.pop();\n        if (v == mn.peek()) mn.pop();\n    }\n    public int top() { return st.peek(); }\n    public int getMin() { return mn.peek(); }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "simplify-path",
+    "title": "Simplify Path",
+    "topic": "Stack",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Simplify Path</strong></p>",
+    "solutionJava": "class Solution {\n    public String simplifyPath(String path) {\n        String[] parts = path.split(\"/\");\n        java.util.Deque<String> st = new java.util.ArrayDeque<>();\n        for (String p : parts) {\n            if (p.equals(\"\") || p.equals(\".\")) continue;\n            if (p.equals(\"..\")) { if (!st.isEmpty()) st.pop(); }\n            else st.push(p);\n        }\n        if (st.isEmpty()) return \"/\";\n        StringBuilder sb = new StringBuilder();\n        java.util.Iterator<String> it = st.descendingIterator();\n        while (it.hasNext()) sb.append('/').append(it.next());\n        return sb.toString();\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "climbing-stairs",
+    "title": "Climbing Stairs",
+    "topic": "1-D DP",
+    "difficulty": "Easy",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Climbing Stairs</strong></p>",
+    "solutionJava": "class Solution {\n    public int climbStairs(int n) {\n        if (n <= 2) return n;\n        int a = 1, b = 2;\n        for (int i = 3; i <= n; i++) { int c = a + b; a = b; b = c; }\n        return b;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "min-cost-climbing-stairs",
+    "title": "Min Cost Climbing Stairs",
+    "topic": "1-D DP",
+    "difficulty": "Easy",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Min Cost Climbing Stairs</strong></p>",
+    "solutionJava": "class Solution {\n    public int minCostClimbingStairs(int[] cost) {\n        int n = cost.length;\n        int prev2 = 0, prev1 = 0;\n        for (int i = 2; i <= n; i++) {\n            int cur = Math.min(prev1 + cost[i - 1], prev2 + cost[i - 2]);\n            prev2 = prev1; prev1 = cur;\n        }\n        return prev1;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "house-robber",
+    "title": "House Robber",
+    "topic": "1-D DP",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>House Robber</strong></p>",
+    "solutionJava": "class Solution {\n    public int rob(int[] nums) {\n        int take = 0, skip = 0;\n        for (int n : nums) { int ntake = skip + n; skip = Math.max(skip, take); take = ntake; }\n        return Math.max(take, skip);\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "house-robber-ii",
+    "title": "House Robber II",
+    "topic": "1-D DP",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>House Robber II</strong></p>",
+    "solutionJava": "class Solution {\n    public int rob(int[] nums) {\n        int n = nums.length;\n        if (n == 1) return nums[0];\n        return Math.max(line(nums, 0, n - 2), line(nums, 1, n - 1));\n    }\n    private int line(int[] a, int l, int r) {\n        int take = 0, skip = 0;\n        for (int i = l; i <= r; i++) { int ntake = skip + a[i]; skip = Math.max(skip, take); take = ntake; }\n        return Math.max(take, skip);\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "longest-palindromic-substring",
+    "title": "Longest Palindromic Substring",
+    "topic": "1-D DP",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Longest Palindromic Substring</strong></p>",
+    "solutionJava": "class Solution {\n    public String longestPalindrome(String s) {\n        if (s == null || s.length() < 2) return s;\n        int start = 0, end = 0;\n        for (int i = 0; i < s.length(); i++) {\n            int len1 = expand(s, i, i);\n            int len2 = expand(s, i, i + 1);\n            int len = Math.max(len1, len2);\n            if (len > end - start + 1) {\n                int left = i - (len - 1) / 2;\n                int right = i + len / 2;\n                start = left; end = right;\n            }\n        }\n        return s.substring(start, end + 1);\n    }\n    private int expand(String s, int l, int r) {\n        while (l >= 0 && r < s.length() && s.charAt(l) == s.charAt(r)) { l--; r++; }\n        return r - l - 1;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "palindromic-substrings",
+    "title": "Palindromic Substrings",
+    "topic": "1-D DP",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Palindromic Substrings</strong></p>",
+    "solutionJava": "class Solution {\n    public int countSubstrings(String s) {\n        int n = s.length(), count = 0;\n        for (int i = 0; i < n; i++) {\n            count += expand(s, i, i);\n            count += expand(s, i, i + 1);\n        }\n        return count;\n    }\n    private int expand(String s, int l, int r) {\n        int cnt = 0;\n        while (l >= 0 && r < s.length() && s.charAt(l) == s.charAt(r)) { cnt++; l--; r++; }\n        return cnt;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "longest-increasing-subsequence",
+    "title": "Longest Increasing Subsequence",
+    "topic": "1-D DP",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Longest Increasing Subsequence</strong></p>",
+    "solutionJava": "class Solution {\n    public int lengthOfLIS(int[] nums) {\n        int[] tails = new int[nums.length]; int size = 0;\n        for (int x : nums) {\n            int i = java.util.Arrays.binarySearch(tails, 0, size, x);\n            if (i < 0) i = -(i + 1);\n            tails[i] = x;\n            if (i == size) size++;\n        }\n        return size;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "partition-equal-subset-sum",
+    "title": "Partition Equal Subset Sum",
+    "topic": "1-D DP",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Partition Equal Subset Sum</strong></p>",
+    "solutionJava": "class Solution {\n    public boolean canPartition(int[] nums) {\n        int sum = 0; for (int n : nums) sum += n;\n        if ((sum & 1) == 1) return false;\n        int target = sum / 2;\n        boolean[] dp = new boolean[target + 1]; dp[0] = true;\n        for (int n : nums) { for (int j = target; j >= n; j--) dp[j] = dp[j] || dp[j - n]; }\n        return dp[target];\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "coin-change",
+    "title": "Coin Change",
+    "topic": "1-D DP",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Coin Change</strong></p>",
+    "solutionJava": "class Solution {\n    public int coinChange(int[] coins, int amount) {\n        int INF = 1_000_000_000;\n        int[] dp = new int[amount + 1];\n        java.util.Arrays.fill(dp, INF); dp[0] = 0;\n        for (int c : coins) {\n            for (int a = c; a <= amount; a++) {\n                dp[a] = Math.min(dp[a], dp[a - c] + 1);\n            }\n        }\n        return dp[amount] >= INF ? -1 : dp[amount];\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "maximum-product-subarray",
+    "title": "Maximum Product Subarray",
+    "topic": "1-D DP",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Maximum Product Subarray</strong></p>",
+    "solutionJava": "class Solution {\n    public int maxProduct(int[] nums) {\n        int max = nums[0], min = nums[0], ans = nums[0];\n        for (int i = 1; i < nums.length; i++) {\n            int x = nums[i];\n            if (x < 0) { int tmp = max; max = min; min = tmp; }\n            max = Math.max(x, max * x);\n            min = Math.min(x, min * x);\n            ans = Math.max(ans, max);\n        }\n        return ans;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "word-break",
+    "title": "Word Break",
+    "topic": "1-D DP",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Word Break</strong></p>",
+    "solutionJava": "class Solution {\n    public boolean wordBreak(String s, java.util.List<String> wordDict) {\n        java.util.Set<String> set = new java.util.HashSet<>(wordDict);\n        boolean[] dp = new boolean[s.length() + 1]; dp[0] = true;\n        for (int i = 1; i <= s.length(); i++) {\n            for (int j = 0; j < i; j++) {\n                if (dp[j] && set.contains(s.substring(j, i))) { dp[i] = true; break; }\n            }\n        }\n        return dp[s.length()];\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "longest-common-subsequence",
+    "title": "Longest Common Subsequence",
+    "topic": "1-D DP",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Longest Common Subsequence</strong></p>",
+    "solutionJava": "class Solution {\n    public int longestCommonSubsequence(String text1, String text2) {\n        int m = text1.length(), n = text2.length();\n        int[][] dp = new int[m + 1][n + 1];\n        for (int i = 1; i <= m; i++) {\n            for (int j = 1; j <= n; j++) {\n                if (text1.charAt(i - 1) == text2.charAt(j - 1)) dp[i][j] = dp[i - 1][j - 1] + 1;\n                else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);\n            }\n        }\n        return dp[m][n];\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "combination-sum-iv",
+    "title": "Combination Sum IV",
+    "topic": "1-D DP",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Combination Sum IV</strong></p>",
+    "solutionJava": "class Solution {\n    public int combinationSum4(int[] nums, int target) {\n        long[] dp = new long[target + 1];\n        dp[0] = 1;\n        for (int t = 1; t <= target; t++) {\n            long ways = 0;\n            for (int x : nums) if (x <= t) ways += dp[t - x];\n            dp[t] = ways;\n        }\n        return (int) dp[target];\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "house-robber-iii",
+    "title": "House Robber III",
+    "topic": "Trees",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>House Robber III</strong></p>",
+    "solutionJava": "/*\n// Definition for a binary tree node.\nclass TreeNode { int val; TreeNode left; TreeNode right; TreeNode() {} TreeNode(int val) { this.val = val; } TreeNode(int val, TreeNode left, TreeNode right) { this.val = val; this.left = left; this.right = right; } }\n*/\nclass Solution {\n    public int rob(TreeNode root) {\n        int[] res = dfs(root);\n        return Math.max(res[0], res[1]);\n    }\n    private int[] dfs(TreeNode node) {\n        if (node == null) return new int[]{0, 0};\n        int[] L = dfs(node.left), R = dfs(node.right);\n        int take = node.val + L[1] + R[1];\n        int skip = Math.max(L[0], L[1]) + Math.max(R[0], R[1]);\n        return new int[]{take, skip};\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "decode-ways",
+    "title": "Decode Ways",
+    "topic": "1-D DP",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Decode Ways</strong></p>",
+    "solutionJava": "class Solution {\n    public int numDecodings(String s) {\n        if (s.isEmpty() || s.charAt(0) == '0') return 0;\n        int n = s.length();\n        int prev2 = 1, prev1 = 1;\n        for (int i = 1; i < n; i++) {\n            int cur = 0;\n            if (s.charAt(i) != '0') cur += prev1;\n            int two = (s.charAt(i - 1) - '0') * 10 + (s.charAt(i) - '0');\n            if (two >= 10 && two <= 26) cur += prev2;\n            prev2 = prev1; prev1 = cur;\n        }\n        return prev1;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "unique-paths",
+    "title": "Unique Paths",
+    "topic": "2-D DP",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Unique Paths</strong></p>",
+    "solutionJava": "class Solution {\n    public int uniquePaths(int m, int n) {\n        int[] dp = new int[n];\n        dp[0] = 1;\n        for (int i = 0; i < m; i++) {\n            for (int j = 1; j < n; j++) dp[j] += dp[j - 1];\n        }\n        return dp[n - 1];\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "jump-game",
+    "title": "Jump Game",
+    "topic": "1-D DP",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Jump Game</strong></p>",
+    "solutionJava": "class Solution {\n    public boolean canJump(int[] nums) {\n        int far = 0;\n        for (int i = 0; i < nums.length; i++) {\n            if (i > far) return false;\n            far = Math.max(far, i + nums[i]);\n        }\n        return true;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "jump-game-ii",
+    "title": "Jump Game II",
+    "topic": "1-D DP",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Jump Game II</strong></p>",
+    "solutionJava": "class Solution {\n    public int jump(int[] nums) {\n        int jumps = 0, curEnd = 0, curFar = 0;\n        for (int i = 0; i < nums.length - 1; i++) {\n            curFar = Math.max(curFar, i + nums[i]);\n            if (i == curEnd) { jumps++; curEnd = curFar; }\n        }\n        return jumps;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "longest-increasing-path-in-a-matrix",
+    "title": "Longest Increasing Path in a Matrix",
+    "topic": "2-D DP",
+    "difficulty": "Hard",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Longest Increasing Path in a Matrix</strong></p>",
+    "solutionJava": "class Solution {\n    public int longestIncreasingPath(int[][] matrix) {\n        int m = matrix.length, n = matrix[0].length;\n        int[][] memo = new int[m][n];\n        int best = 0;\n        for (int i = 0; i < m; i++) {\n            for (int j = 0; j < n; j++) {\n                best = Math.max(best, dfs(matrix, i, j, memo));\n            }\n        }\n        return best;\n    }\n    private int dfs(int[][] a, int i, int j, int[][] memo) {\n        if (memo[i][j] != 0) return memo[i][j];\n        int[][] dirs = new int[][]{{1,0},{-1,0},{0,1},{0,-1}};\n        int best = 1;\n        for (int[] d : dirs) {\n            int ni = i + d[0], nj = j + d[1];\n            if (ni >= 0 && nj >= 0 && ni < a.length && nj < a[0].length && a[ni][nj] > a[i][j]) {\n                best = Math.max(best, 1 + dfs(a, ni, nj, memo));\n            }\n        }\n        return memo[i][j] = best;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "edit-distance",
+    "title": "Edit Distance",
+    "topic": "2-D DP",
+    "difficulty": "Hard",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Edit Distance</strong></p>",
+    "solutionJava": "class Solution {\n    public int minDistance(String a, String b) {\n        int m = a.length(), n = b.length();\n        int[][] dp = new int[m + 1][n + 1];\n        for (int i = 0; i <= m; i++) dp[i][0] = i;\n        for (int j = 0; j <= n; j++) dp[0][j] = j;\n        for (int i = 1; i <= m; i++) {\n            for (int j = 1; j <= n; j++) {\n                if (a.charAt(i - 1) == b.charAt(j - 1)) dp[i][j] = dp[i - 1][j - 1];\n                else dp[i][j] = 1 + Math.min(dp[i - 1][j - 1], Math.min(dp[i - 1][j], dp[i][j - 1]));\n            }\n        }\n        return dp[m][n];\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "regular-expression-matching",
+    "title": "Regular Expression Matching",
+    "topic": "2-D DP",
+    "difficulty": "Hard",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Regular Expression Matching</strong></p>",
+    "solutionJava": "class Solution {\n    public boolean isMatch(String s, String p) {\n        int m = s.length(), n = p.length();\n        boolean[][] dp = new boolean[m + 1][n + 1];\n        dp[0][0] = true;\n        for (int j = 2; j <= n; j++) if (p.charAt(j - 1) == '*') dp[0][j] = dp[0][j - 2];\n        for (int i = 1; i <= m; i++) {\n            for (int j = 1; j <= n; j++) {\n                char pj = p.charAt(j - 1);\n                if (pj == '.' || pj == s.charAt(i - 1)) {\n                    dp[i][j] = dp[i - 1][j - 1];\n                } else if (pj == '*') {\n                    dp[i][j] = dp[i][j - 2];\n                    char prev = p.charAt(j - 2);\n                    if (prev == '.' || prev == s.charAt(i - 1)) dp[i][j] |= dp[i - 1][j];\n                }\n            }\n        }\n        return dp[m][n];\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "burst-balloons",
+    "title": "Burst Balloons",
+    "topic": "2-D DP",
+    "difficulty": "Hard",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Burst Balloons</strong></p>",
+    "solutionJava": "class Solution {\n    public int maxCoins(int[] nums) {\n        int n = nums.length;\n        int[] arr = new int[n + 2];\n        arr[0] = 1; arr[n + 1] = 1;\n        for (int i = 0; i < n; i++) arr[i + 1] = nums[i];\n        int[][] dp = new int[n + 2][n + 2];\n        for (int len = 1; len <= n; len++) {\n            for (int l = 1; l + len - 1 <= n; l++) {\n                int r = l + len - 1;\n                for (int k = l; k <= r; k++) {\n                    dp[l][r] = Math.max(dp[l][r], dp[l][k - 1] + arr[l - 1] * arr[k] * arr[r + 1] + dp[k + 1][r]);\n                }\n            }\n        }\n        return dp[1][n];\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "interleaving-string",
+    "title": "Interleaving String",
+    "topic": "2-D DP",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Interleaving String</strong></p>",
+    "solutionJava": "class Solution {\n    public boolean isInterleave(String s1, String s2, String s3) {\n        int m = s1.length(), n = s2.length();\n        if (m + n != s3.length()) return false;\n        boolean[][] dp = new boolean[m + 1][n + 1];\n        dp[0][0] = true;\n        for (int i = 1; i <= m; i++) dp[i][0] = dp[i - 1][0] && s1.charAt(i - 1) == s3.charAt(i - 1);\n        for (int j = 1; j <= n; j++) dp[0][j] = dp[0][j - 1] && s2.charAt(j - 1) == s3.charAt(j - 1);\n        for (int i = 1; i <= m; i++) {\n            for (int j = 1; j <= n; j++) {\n                dp[i][j] = (dp[i - 1][j] && s1.charAt(i - 1) == s3.charAt(i + j - 1)) || (dp[i][j - 1] && s2.charAt(j - 1) == s3.charAt(i + j - 1));\n            }\n        }\n        return dp[m][n];\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "distinct-subsequences",
+    "title": "Distinct Subsequences",
+    "topic": "2-D DP",
+    "difficulty": "Hard",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Distinct Subsequences</strong></p>",
+    "solutionJava": "class Solution {\n    public int numDistinct(String s, String t) {\n        int m = s.length(), n = t.length();\n        long[][] dp = new long[m + 1][n + 1];\n        for (int i = 0; i <= m; i++) dp[i][0] = 1;\n        for (int i = 1; i <= m; i++) {\n            for (int j = 1; j <= n; j++) {\n                dp[i][j] = dp[i - 1][j];\n                if (s.charAt(i - 1) == t.charAt(j - 1)) dp[i][j] += dp[i - 1][j - 1];\n            }\n        }\n        return (int) dp[m][n];\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "best-time-to-buy-and-sell-stock-with-cooldown",
+    "title": "Best Time to Buy and Sell Stock with Cooldown",
+    "topic": "1-D DP",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Best Time to Buy and Sell Stock with Cooldown</strong></p>",
+    "solutionJava": "class Solution {\n    public int maxProfit(int[] prices) {\n        int hold = Integer.MIN_VALUE / 2, sold = Integer.MIN_VALUE / 2, rest = 0;\n        for (int p : prices) {\n            int prevSold = sold;\n            sold = hold + p;\n            hold = Math.max(hold, rest - p);\n            rest = Math.max(rest, prevSold);\n        }\n        return Math.max(rest, sold);\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "coin-change-ii",
+    "title": "Coin Change II",
+    "topic": "1-D DP",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Coin Change II</strong></p>",
+    "solutionJava": "class Solution {\n    public int change(int amount, int[] coins) {\n        int[] dp = new int[amount + 1];\n        dp[0] = 1;\n        for (int c : coins) {\n            for (int a = c; a <= amount; a++) dp[a] += dp[a - c];\n        }\n        return dp[amount];\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "target-sum",
+    "title": "Target Sum",
+    "topic": "1-D DP",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Target Sum</strong></p>",
+    "solutionJava": "class Solution {\n    public int findTargetSumWays(int[] nums, int target) {\n        int sum = 0; for (int n : nums) sum += n;\n        int tot = sum + target;\n        if (tot < 0 || (tot & 1) == 1) return 0;\n        int S = tot / 2;\n        int[] dp = new int[S + 1]; dp[0] = 1;\n        for (int n : nums) {\n            for (int s = S; s >= n; s--) dp[s] += dp[s - n];\n        }\n        return dp[S];\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "reverse-bits",
+    "title": "Reverse Bits",
+    "topic": "Bit Manipulation",
+    "difficulty": "Easy",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Reverse Bits</strong></p>",
+    "solutionJava": "class Solution {\n    public int reverseBits(int n) {\n        int res = 0;\n        for (int i = 0; i < 32; i++) {\n            res = (res << 1) | (n & 1);\n            n >>>= 1;\n        }\n        return res;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "number-of-1-bits",
+    "title": "Number of 1 Bits",
+    "topic": "Bit Manipulation",
+    "difficulty": "Easy",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Number of 1 Bits</strong></p>",
+    "solutionJava": "class Solution {\n    public int hammingWeight(int n) {\n        int count = 0;\n        while (n != 0) {\n            n &= (n - 1);\n            count++;\n        }\n        return count;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "counting-bits",
+    "title": "Counting Bits",
+    "topic": "Bit Manipulation",
+    "difficulty": "Easy",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Counting Bits</strong></p>",
+    "solutionJava": "class Solution {\n    public int[] countBits(int n) {\n        int[] dp = new int[n + 1];\n        for (int i = 1; i <= n; i++) dp[i] = dp[i >> 1] + (i & 1);\n        return dp;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "missing-number",
+    "title": "Missing Number",
+    "topic": "Bit Manipulation",
+    "difficulty": "Easy",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Missing Number</strong></p>",
+    "solutionJava": "class Solution {\n    public int missingNumber(int[] nums) {\n        int x = nums.length;\n        for (int i = 0; i < nums.length; i++) x ^= i ^ nums[i];\n        return x;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "sum-of-two-integers",
+    "title": "Sum of Two Integers",
+    "topic": "Bit Manipulation",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Sum of Two Integers</strong></p>",
+    "solutionJava": "class Solution {\n    public int getSum(int a, int b) {\n        while (b != 0) {\n            int carry = (a & b) << 1;\n            a = a ^ b;\n            b = carry;\n        }\n        return a;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "reverse-integer",
+    "title": "Reverse Integer",
+    "topic": "Math & Geometry",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Reverse Integer</strong></p><p>Reverse the digits of a 32-bit signed integer. Return 0 if reversing causes overflow.</p><p><em>Example:</em> 123 → 321, -120 → -21</p>",
+    "solutionJava": "class Solution {\n    public int reverse(int x) {\n        int rev = 0;\n        while (x != 0) {\n            int pop = x % 10;\n            x /= 10;\n            if (rev > 214748364 || (rev == 214748364 && pop > 7)) return 0;\n            if (rev < -214748364 || (rev == -214748364 && pop < -8)) return 0;\n            rev = rev * 10 + pop;\n        }\n        return rev;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "palindrome-number",
+    "title": "Palindrome Number",
+    "topic": "Math & Geometry",
+    "difficulty": "Easy",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Palindrome Number</strong></p><p>Return true if the integer reads the same forward and backward (no string conversion needed).</p><p><em>Example:</em> 121 → true, -121 → false</p>",
+    "solutionJava": "class Solution {\n    public boolean isPalindrome(int x) {\n        if (x < 0 || (x % 10 == 0 && x != 0)) return false;\n        int rev = 0;\n        while (x > rev) {\n            rev = rev * 10 + x % 10;\n            x /= 10;\n        }\n        return x == rev || x == rev / 10;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "rotate-image",
+    "title": "Rotate Image",
+    "topic": "Math & Geometry",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Rotate Image</strong></p><p>Rotate an n×n matrix by 90&deg; clockwise in-place.</p><p><em>Example:</em> [[1,2,3],[4,5,6],[7,8,9]] → [[7,4,1],[8,5,2],[9,6,3]]</p>",
+    "solutionJava": "class Solution {\n    public void rotate(int[][] matrix) {\n        int n = matrix.length;\n        for (int i = 0; i < n; i++) {\n            for (int j = i + 1; j < n; j++) {\n                int tmp = matrix[i][j];\n                matrix[i][j] = matrix[j][i];\n                matrix[j][i] = tmp;\n            }\n        }\n        for (int i = 0; i < n; i++) {\n            for (int j = 0, k = n - 1; j < k; j++, k--) {\n                int tmp = matrix[i][j];\n                matrix[i][j] = matrix[i][k];\n                matrix[i][k] = tmp;\n            }\n        }\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "spiral-matrix",
+    "title": "Spiral Matrix",
+    "topic": "Math & Geometry",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Spiral Matrix</strong></p><p>Return all elements of an m×n matrix in spiral order.</p><p><em>Example:</em> [[1,2,3],[4,5,6],[7,8,9]] → [1,2,3,6,9,8,7,4,5]</p>",
+    "solutionJava": "class Solution {\n    public java.util.List<Integer> spiralOrder(int[][] matrix) {\n        java.util.List<Integer> res = new java.util.ArrayList<>();\n        int m = matrix.length, n = matrix[0].length;\n        int top = 0, bottom = m - 1, left = 0, right = n - 1;\n        while (top <= bottom && left <= right) {\n            for (int j = left; j <= right; j++) res.add(matrix[top][j]);\n            top++;\n            for (int i = top; i <= bottom; i++) res.add(matrix[i][right]);\n            right--;\n            if (top <= bottom) {\n                for (int j = right; j >= left; j--) res.add(matrix[bottom][j]);\n                bottom--;\n            }\n            if (left <= right) {\n                for (int i = bottom; i >= top; i--) res.add(matrix[i][left]);\n                left++;\n            }\n        }\n        return res;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "set-matrix-zeroes",
+    "title": "Set Matrix Zeroes",
+    "topic": "Math & Geometry",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Set Matrix Zeroes</strong></p><p>If an element is 0, set its entire row and column to 0 in-place using O(1) extra space.</p><p><em>Example:</em> [[1,1,1],[1,0,1],[1,1,1]] → [[1,0,1],[0,0,0],[1,0,1]]</p>",
+    "solutionJava": "class Solution {\n    public void setZeroes(int[][] matrix) {\n        int m = matrix.length, n = matrix[0].length;\n        boolean fr = false, fc = false;\n        for (int j = 0; j < n; j++) if (matrix[0][j] == 0) fr = true;\n        for (int i = 0; i < m; i++) if (matrix[i][0] == 0) fc = true;\n        for (int i = 1; i < m; i++) {\n            for (int j = 1; j < n; j++) {\n                if (matrix[i][j] == 0) { matrix[i][0] = 0; matrix[0][j] = 0; }\n            }\n        }\n        for (int i = 1; i < m; i++) if (matrix[i][0] == 0) for (int j = 1; j < n; j++) matrix[i][j] = 0;\n        for (int j = 1; j < n; j++) if (matrix[0][j] == 0) for (int i = 1; i < m; i++) matrix[i][j] = 0;\n        if (fr) for (int j = 0; j < n; j++) matrix[0][j] = 0;\n        if (fc) for (int i = 0; i < m; i++) matrix[i][0] = 0;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "happy-number",
+    "title": "Happy Number",
+    "topic": "Math & Geometry",
+    "difficulty": "Easy",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Happy Number</strong></p><p>Repeat: replace n by the sum of squares of its digits. If it becomes 1, it's happy; if it loops, it's not.</p><p><em>Example:</em> 19 → 1 (happy)</p>",
+    "solutionJava": "class Solution {\n    public boolean isHappy(int n) {\n        int slow = n, fast = next(n);\n        while (fast != 1 && slow != fast) {\n            slow = next(slow);\n            fast = next(next(fast));\n        }\n        return fast == 1;\n    }\n    private int next(int x) {\n        int sum = 0;\n        while (x > 0) { int d = x % 10; sum += d * d; x /= 10; }\n        return sum;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "plus-one",
+    "title": "Plus One",
+    "topic": "Math & Geometry",
+    "difficulty": "Easy",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Plus One</strong></p><p>Add one to a non-negative integer represented as an array of digits.</p><p><em>Example:</em> [1,2,9] → [1,3,0]</p>",
+    "solutionJava": "class Solution {\n    public int[] plusOne(int[] digits) {\n        for (int i = digits.length - 1; i >= 0; i--) {\n            if (digits[i] < 9) { digits[i]++; return digits; }\n            digits[i] = 0;\n        }\n        int[] res = new int[digits.length + 1];\n        res[0] = 1;\n        return res;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "powx-n",
+    "title": "Pow(x, n)",
+    "topic": "Math & Geometry",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Pow(x, n)</strong></p><p>Compute x raised to the power n using fast exponentiation. Supports negative exponents.</p><p><em>Example:</em> 2<sup>-2</sup> → 0.25</p>",
+    "solutionJava": "class Solution {\n    public double myPow(double x, int n) {\n        long e = n;\n        if (e < 0) { x = 1.0 / x; e = -e; }\n        double res = 1.0;\n        while (e > 0) {\n            if ((e & 1) == 1) res *= x;\n            x *= x;\n            e >>= 1;\n        }\n        return res;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "multiply-strings",
+    "title": "Multiply Strings",
+    "topic": "Math & Geometry",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Multiply Strings</strong></p><p>Multiply two non-negative integers given as strings without using big integer libraries.</p><p><em>Example:</em> \"123\" × \"45\" → \"5535\"</p>",
+    "solutionJava": "class Solution {\n    public String multiply(String num1, String num2) {\n        if (num1.equals(\"0\") || num2.equals(\"0\")) return \"0\";\n        int m = num1.length(), n = num2.length();\n        int[] res = new int[m + n];\n        for (int i = m - 1; i >= 0; i--) {\n            int a = num1.charAt(i) - '0';\n            for (int j = n - 1; j >= 0; j--) {\n                int b = num2.charAt(j) - '0';\n                int sum = res[i + j + 1] + a * b;\n                res[i + j + 1] = sum % 10;\n                res[i + j] += sum / 10;\n            }\n        }\n        StringBuilder sb = new StringBuilder();\n        int i = 0;\n        while (i < res.length && res[i] == 0) i++;\n        for (; i < res.length; i++) sb.append(res[i]);\n        return sb.toString();\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "detect-capital",
+    "title": "Detect Capital",
+    "topic": "Math & Geometry",
+    "difficulty": "Easy",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Detect Capital</strong></p><p>Check if capitalization is correct: all caps, all lowercase, or only first letter capitalized.</p><p><em>Example:</em> USA ✔, Google ✔, leetcode ✔, FLaG ✖</p>",
+    "solutionJava": "class Solution {\n    public boolean detectCapitalUse(String word) {\n        int upper = 0;\n        for (char c : word.toCharArray()) if (Character.isUpperCase(c)) upper++;\n        return upper == word.length() || upper == 0 || (upper == 1 && Character.isUpperCase(word.charAt(0)));\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "insert-interval",
+    "title": "Insert Interval",
+    "topic": "Intervals",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Insert Interval</strong></p><p>Insert a new interval into a sorted, non-overlapping list and merge overlaps.</p><p><em>Example:</em> [[1,3],[6,9]] + [2,5] → [[1,5],[6,9]]</p>",
+    "solutionJava": "class Solution {\n    public int[][] insert(int[][] intervals, int[] newInterval) {\n        java.util.List<int[]> res = new java.util.ArrayList<>();\n        int i = 0, n = intervals.length;\n        while (i < n && intervals[i][1] < newInterval[0]) res.add(intervals[i++]);\n        int start = newInterval[0], end = newInterval[1];\n        while (i < n && intervals[i][0] <= end) {\n            start = Math.min(start, intervals[i][0]);\n            end = Math.max(end, intervals[i][1]);\n            i++;\n        }\n        res.add(new int[]{start, end});\n        while (i < n) res.add(intervals[i++]);\n        return res.toArray(new int[res.size()][]);\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "merge-intervals",
+    "title": "Merge Intervals",
+    "topic": "Intervals",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Merge Intervals</strong></p><p>Merge all overlapping intervals and return the result.</p><p><em>Example:</em> [[1,3],[2,6],[8,10],[15,18]] → [[1,6],[8,10],[15,18]]</p>",
+    "solutionJava": "class Solution {\n    public int[][] merge(int[][] intervals) {\n        if (intervals.length == 0) return new int[0][0];\n        java.util.Arrays.sort(intervals, (a,b)->Integer.compare(a[0], b[0]));\n        java.util.List<int[]> res = new java.util.ArrayList<>();\n        int[] cur = intervals[0].clone();\n        for (int i = 1; i < intervals.length; i++) {\n            if (intervals[i][0] <= cur[1]) {\n                cur[1] = Math.max(cur[1], intervals[i][1]);\n            } else {\n                res.add(cur);\n                cur = intervals[i].clone();\n            }\n        }\n        res.add(cur);\n        return res.toArray(new int[res.size()][]);\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "non-overlapping-intervals",
+    "title": "Non-overlapping Intervals",
+    "topic": "Intervals",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Non-overlapping Intervals</strong></p><p>Remove the minimum number of intervals to eliminate all overlaps.</p><p><em>Example:</em> [[1,2],[2,3],[3,4],[1,3]] → 1</p>",
+    "solutionJava": "class Solution {\n    public int eraseOverlapIntervals(int[][] intervals) {\n        if (intervals.length == 0) return 0;\n        java.util.Arrays.sort(intervals, (a,b)->Integer.compare(a[1], b[1]));\n        int removed = 0;\n        int end = Integer.MIN_VALUE;\n        for (int[] in : intervals) {\n            if (in[0] >= end) {\n                end = in[1];\n            } else {\n                removed++;\n            }\n        }\n        return removed;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "meeting-rooms",
+    "title": "Meeting Rooms",
+    "topic": "Intervals",
+    "difficulty": "Easy",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Meeting Rooms</strong></p><p>Given intervals, determine if a person can attend all meetings (no overlaps).</p><p><em>Example:</em> [[0,30],[5,10],[15,20]] → false</p>",
+    "solutionJava": "class Solution {\n    public boolean canAttendMeetings(int[][] intervals) {\n        java.util.Arrays.sort(intervals, (a,b)->Integer.compare(a[0], b[0]));\n        for (int i = 1; i < intervals.length; i++) if (intervals[i][0] < intervals[i-1][1]) return false;\n        return true;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "meeting-rooms-ii",
+    "title": "Meeting Rooms II",
+    "topic": "Intervals",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Meeting Rooms II</strong></p><p>Return the minimum number of conference rooms required for all meetings.</p><p><em>Example:</em> [[0,30],[5,10],[15,20]] → 2</p>",
+    "solutionJava": "class Solution {\n    public int minMeetingRooms(int[][] intervals) {\n        int n = intervals.length; if (n == 0) return 0;\n        int[] start = new int[n], end = new int[n];\n        for (int i = 0; i < n; i++) { start[i] = intervals[i][0]; end[i] = intervals[i][1]; }\n        java.util.Arrays.sort(start); java.util.Arrays.sort(end);\n        int rooms = 0, e = 0;\n        for (int s = 0; s < n; s++) {\n            if (start[s] < end[e]) rooms++;\n            else e++;\n        }\n        return rooms;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "gas-station",
+    "title": "Gas Station",
+    "topic": "Greedy",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Gas Station</strong></p><p>Find a starting station index to complete the circuit once; return -1 if impossible.</p><p><em>Example:</em> gas=[1,2,3,4,5], cost=[3,4,5,1,2] → 3</p>",
+    "solutionJava": "class Solution {\n    public int canCompleteCircuit(int[] gas, int[] cost) {\n        int total = 0, tank = 0, start = 0;\n        for (int i = 0; i < gas.length; i++) {\n            int diff = gas[i] - cost[i];\n            total += diff; tank += diff;\n            if (tank < 0) { tank = 0; start = i + 1; }\n        }\n        return total >= 0 ? start : -1;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "hand-of-straights",
+    "title": "Hand of Straights",
+    "topic": "Greedy",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Hand of Straights</strong></p><p>Check if the hand can be rearranged into groups of size k of consecutive cards.</p><p><em>Example:</em> hand=[1,2,3,6,2,3,4,7,8], k=3 → true</p>",
+    "solutionJava": "class Solution {\n    public boolean isNStraightHand(int[] hand, int groupSize) {\n        int n = hand.length;\n        if (n % groupSize != 0) return false;\n        java.util.Map<Integer, Integer> count = new java.util.TreeMap<>();\n        for (int x : hand) count.put(x, count.getOrDefault(x, 0) + 1);\n        for (int x : new java.util.ArrayList<>(count.keySet())) {\n            int freq = count.getOrDefault(x, 0);\n            if (freq > 0) {\n                for (int v = x; v < x + groupSize; v++) {\n                    int c = count.getOrDefault(v, 0);\n                    if (c < freq) return false;\n                    count.put(v, c - freq);\n                }\n            }\n        }\n        return true;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "partition-labels",
+    "title": "Partition Labels",
+    "topic": "Greedy",
+    "difficulty": "Medium",
+    "description": "TODO",
+    "descriptionHtml": "<p><strong>Partition Labels</strong></p><p>Partition the string so each letter appears in at most one part; return the sizes of parts.</p><p><em>Example:</em> s=\"ababcbacadefegdehijhklij\" → [9,7,8]</p>",
+    "solutionJava": "class Solution {\n    public java.util.List<Integer> partitionLabels(String s) {\n        int[] last = new int[26];\n        for (int i = 0; i < s.length(); i++) last[s.charAt(i) - 'a'] = i;\n        java.util.List<Integer> res = new java.util.ArrayList<>();\n        int start = 0, end = 0;\n        for (int i = 0; i < s.length(); i++) {\n            end = Math.max(end, last[s.charAt(i) - 'a']);\n            if (i == end) { res.add(end - start + 1); start = i + 1; }\n        }\n        return res;\n    }\n}",
+    "sampleTests": []
+  },
+  {
+    "id": "smallest-range-covering-elements-from-k-lists",
+    "title": "Smallest Range Covering Elements from K Lists",
+    "topic": "Sliding Window",
+    "difficulty": "Hard",
+    "descriptionHtml": "<p><strong>Smallest Range Covering Elements from K Lists</strong></p>\n<p>You have k lists of sorted integers in non-decreasing order. Find the smallest range that includes at least one number from each of the k lists.</p>\n<p>We define the range [a, b] is smaller than range [c, d] if b - a &lt; d - c or a &lt; c if b - a == d - c.</p>\n<p>Input: nums = [[4,10,15,24,26],[0,9,12,20],[5,18,22,30]] Output: [20,24] Explanation: List 1: [4, 10, 15, 24,26], 24 is in range [20,24]. List 2: [0, 9, 12, 20], 20 is in range [20,24]. List 3: [5, 18, 22, 30], 22 is in range [20,24].</p>",
+    "solutionJava": "class Solution {\n    public int[] smallestRange(List<List<Integer>> nums) {\n        int currMax = Integer.MIN_VALUE;\n        PriorityQueue<int[]> pq = new PriorityQueue<>((a,b) -> a[0] - b[0]);\n        for(int i=0;i<nums.size();i++){\n            currMax = Math.max(currMax,nums.get(i).get(0));\n            pq.add(new int[]{nums.get(i).get(0),i,0});\n        }\n\n        // Track the smallest range\n        int[] smallRange = new int[]{0, Integer.MAX_VALUE};\n\n        while(!pq.isEmpty()){            \n            int[] curr = pq.remove();\n            int currVal = curr[0], currList = curr[1], eleIdx = curr[2];\n            \n            if(currMax - currVal < smallRange[1] - smallRange[0]){\n                smallRange[0] = currVal;\n                smallRange[1] = currMax;\n            }\n\n            if(eleIdx + 1 < nums.get(currList).size()){\n                int nextVal = nums.get(currList).get(eleIdx + 1);\n                pq.add(new int[]{nextVal,currList,eleIdx + 1});\n                currMax = Math.max(currMax,nextVal);\n            }\n            else{\n                break;\n            }\n        }\n\n        return smallRange;\n        \n    }\n}\n\n/*\n\nN -> Number of all elements combined\n// O(N * K (number of arrays))\n\n\n        int n = nums.size();\n        int[] ptr = new int[n];\n        int left = Integer.MAX_VALUE, right = Integer.MIN_VALUE;\n        for(int i=0;i<n;i++){\n            left = Math.min(left,nums.get(i).get(0));\n            right = Math.max(right,nums.get(i).get(0));\n        }\n        while(true){\n            int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;\n            int idx= -1;\n            for(int i=0;i<n;i++){\n                List<Integer> temp = nums.get(i);\n                if(ptr[i] < temp.size()){\n                    if(min > temp.get(ptr[i])){\n                        min = temp.get(ptr[i]);\n                        idx = i;\n                    }\n                    max = Math.max(max,temp.get(ptr[i]));\n                }\n            }\n\n            if(idx == -1)\n                break;\n\n            if(right - left > max - min ){\n                left = min;\n                right = max;\n            }\n\n            ptr[idx]++;\n\n            if(ptr[idx] == nums.get(idx).size())\n                break;\n\n        }\n\n\n*/"
+  }
+]
