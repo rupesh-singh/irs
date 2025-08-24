@@ -620,11 +620,33 @@ function App() {
   }, [theme]);
 
   useEffect(()=> {
-    // Load data
-    fetch('data.json', {cache: 'no-cache'})
-      .then(r => { if(!r.ok) throw new Error('Failed to load data'); return r.json(); })
-      .then(setProblems)
-      .catch(err => { console.error(err); setError('Could not load problems.'); });
+    // Load data (prefer generated manifest, then fallback), then merge optional skeleton if present
+    async function loadAll() {
+      try {
+        async function tryJson(url) {
+          try { const r = await fetch(url, { cache: 'no-cache' }); if (!r.ok) return null; return await r.json(); } catch { return null; }
+        }
+        const generated = await tryJson('data.generated.json');
+        const base = generated || (await tryJson('data.json'));
+        if (!base) throw new Error('Failed to load data');
+        const extra = await tryJson('data.neetcode150.skeleton.json');
+        let combined = base;
+        if (Array.isArray(extra) && extra.length) {
+          const byId = new Map(base.map(p => [p.id, p]));
+          for (const p of extra) {
+            if (!p || !p.id) continue;
+            if (!byId.has(p.id)) byId.set(p.id, p);
+          }
+          combined = Array.from(byId.values());
+        }
+        setProblems(combined);
+        setError(null);
+      } catch (e) {
+        console.error(e);
+        setError('Could not load problems.');
+      }
+    }
+    loadAll();
   }, []);
 
   // Load manifests for new sections (once)
@@ -805,4 +827,3 @@ function App() {
 /****************************** Mount App ******************************/
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
-
