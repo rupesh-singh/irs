@@ -35,6 +35,6 @@ Outputs `../../data.generated.json`.
 
 ## Quick add helper
 ```powershell
-node add-problem.js "Two Sum" --topic "Arrays & Hashing" --difficulty Easy
+node add-problem.js "Two Sum" --topic "Arrays & Hashing" --difficulty Easy --id "two-sum"
 ```
 Creates: `../../problems/Arrays & Hashing/two-sum/problem.md` and `solution.java`.
