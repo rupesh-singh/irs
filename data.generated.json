@@ -1175,6 +1175,14 @@
     "sampleTests": []
   },
   {
+    "id": "employee-free-time",
+    "title": "Employee Free Time",
+    "topic": "Heap / Priority Queue",
+    "difficulty": "Hard",
+    "descriptionHtml": "<p><strong>Employee Free Time</strong></p>\n<p>Write the problem statement here in Markdown.</p>\n<p>Given a list of employee work schedules with each employee having a list of non-overlapping intervals representing their working hours, we are tasked with finding the common free time for all employees, or in other words, the times when all employees are not working.</p>\n<p>The input is a nested list of intervals, each interval as [start, end], with start &lt; end. The intervals are non-overlapping and are already sorted in ascending order. The output should also be a list of sorted intervals.</p>\n<p>For example, consider schedule = [[[1,3],[6,7]],[[2,4]],[[2,5],[9,12]]]. Here, Employee 1 works from 1 to 3 and 6 to 7. Employee 2 works from 2 to 4 and Employee 3 works from 2 to 5 and 9 to 12. The common free time for all employees is [5,6] and [7,9] as these are the intervals when all employees are free.</p>",
+    "solutionJava": "/**\n * Definition for an interval.\n * public class Interval {\n *     int start;\n *     int end;\n *     Interval() { start = 0; end = 0; }\n *     Interval(int s, int e) { start = s; end = e; }\n * }\n */\npublic class Solution {\n    public List<Interval> employeeFreeTime(List<List<Interval>> schedule) {\n        List<Interval> res = new ArrayList<>();\n        List<Interval> intervals = new ArrayList<>();\n        // Flattening the schedule\n        for (List<Interval> employee : schedule)\n            for (Interval interval : employee)\n                intervals.add(interval);\n        // Sorting by start of each Interval\n        Collections.sort(intervals, (a, b) -> a.start - b.start);\n        int end = intervals.get(0).end;\n        // Checking for free time between intervals\n        for (Interval interval : intervals) {\n            if (interval.start > end)\n                res.add(new Interval(end, interval.start));\n            end = Math.max(end, interval.end);\n        }\n        return res;\n    }\n}\n"
+  },
+  {
     "id": "reverse-nodes-in-kgroups",
     "title": "Reverse Node in K groups",
     "topic": "Linked List",
