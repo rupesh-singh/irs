@@ -6,5 +6,6 @@
   "RateLimiterDemo.java",
   "TrieDataStructure.java",
   "UnionFindDemo.java",
-  "QuickSortDemo.java"
+  "QuickSortDemo.java",
+  "DijkstraDemo.java"
 ]
