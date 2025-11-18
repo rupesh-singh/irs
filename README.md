@@ -3,7 +3,7 @@
 ## Features
 - Single accordion-based browsing experience (topics collapse, problems expand inline)
 - Source of truth is `ProblemList.xlsx`, exported to JSON with one command
-- Inline Java solution with syntax highlighting (Highlight.js)
+- Inline code reader/editor with syntax highlighting, copy, and reset controls (Highlight.js)
 - Light / Dark theme toggle (persisted in localStorage)
 - Mobile friendly & responsive layout
 - Graceful fallback if problem data fails to load
@@ -25,8 +25,8 @@ README.md        # This document
 From Home choose the "Accordion list view" tile (or hit a problem via global search):
 * Collapsible topics display problem counts
 * Expand a topic, then expand a problem for description + solution
-* Lazy loading of external solution file if present
-* Inline syntax highlighting (auto-matches theme)
+* Inline code reader supports Edit/Preview toggle, clipboard copy, and one-click reset to the spreadsheet source
+* Syntax highlighting auto-matches the current theme
 * Keyboard friendly (Tab through toggles; Enter/Space to expand)
 
 ## Updating Data

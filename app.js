@@ -36,6 +36,10 @@ function saveTheme(t) {
   try { localStorage.setItem('rev-theme', t); } catch {}
 }
 
+function normalizeNewlines(value = '') {
+  return (typeof value === 'string' ? value : '').replace(/\r\n/g, '\n');
+}
+
 // Section manifest constants
 const HLD_MANIFEST = 'hld/manifest.json';
 const LLD_MANIFEST = 'lld/manifest.json';
@@ -186,6 +190,86 @@ function CodeViewer({ title, url, onBack }) {
   );
 }
 
+function CodeReader({
+  title = 'Solution',
+  code = '',
+  language = 'java',
+  editable = true,
+  onChange,
+  onReset,
+  emptyMessage = '// No solution shared yet.',
+  isDirty = false
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const codeRef = useRef(null);
+  const editorRef = useRef(null);
+  const sanitizedCode = typeof code === 'string' ? code : '';
+  const displayCode = sanitizedCode.trim() ? sanitizedCode : emptyMessage;
+
+  useEffect(() => {
+    if (!isEditing && codeRef.current && window.hljs) {
+      window.hljs.highlightElement(codeRef.current);
+    }
+  }, [displayCode, isEditing, language]);
+
+  useEffect(() => {
+    if (isEditing && editorRef.current) {
+      const el = editorRef.current;
+      el.focus();
+      el.setSelectionRange(el.value.length, el.value.length);
+    }
+  }, [isEditing]);
+
+  const copy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(displayCode);
+    } catch {/* ignore */}
+  }, [displayCode]);
+
+  const toggleEdit = () => {
+    if (!editable) return;
+    setIsEditing(v => !v);
+  };
+
+  const handleReset = () => {
+    if (onReset) onReset();
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="code-reader" aria-label={`${title} code ${isEditing ? 'editor' : 'viewer'}`}>
+      <div className="code-reader-toolbar">
+        <span className="code-reader-title">{title}</span>
+        <div className="code-reader-actions">
+          {editable && (
+            <button className="pill-btn ghost" onClick={toggleEdit} aria-pressed={isEditing}>
+              {isEditing ? 'Preview' : 'Edit'}
+            </button>
+          )}
+          {onReset && editable && isDirty && (
+            <button className="pill-btn ghost" onClick={handleReset}>Reset</button>
+          )}
+          <button className="pill-btn ghost" onClick={copy}>Copy</button>
+        </div>
+      </div>
+      {isEditing ? (
+        <textarea
+          ref={editorRef}
+          className="code-reader-textarea"
+          value={code}
+          spellCheck={false}
+          onChange={(e)=> onChange?.(e.target.value)}
+          aria-label={`${title} editor`}
+        />
+      ) : (
+        <pre className="code-reader-pre" aria-label={`${title} highlighted code`}>
+          <code ref={codeRef} className={`language-${language}`} style={{whiteSpace:'pre'}}>{displayCode}</code>
+        </pre>
+      )}
+    </div>
+  );
+}
+
 /**
  * Grind75-style Accordion List (collapsible topics + expandable problems)
  */
@@ -195,6 +279,7 @@ function ProblemAccordion({ problems, onBack, error }) {
   const [search, setSearch] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState(''); // '', 'Easy', 'Medium', 'Hard'
   const [topicFilter, setTopicFilter] = useState(null); // specific topic chip
+  const [solutionDrafts, setSolutionDrafts] = useState({});
 
   const normalizedProblems = useMemo(()=> problems.map(p => ({
     ...p,
@@ -234,10 +319,38 @@ function ProblemAccordion({ problems, onBack, error }) {
     return <>{title.slice(0,idx)}<span className="highlight-inline">{title.slice(idx, idx+search.length)}</span>{title.slice(idx+search.length)}</>;
   }, [search]);
 
+  const solutionTextFor = useCallback((problem) => {
+    if (solutionDrafts.hasOwnProperty(problem.id)) return solutionDrafts[problem.id];
+    return typeof problem.solution === 'string' ? problem.solution : '';
+  }, [solutionDrafts]);
+
+  const updateSolutionDraft = useCallback((id, baseValue, nextValue) => {
+    setSolutionDrafts(prev => {
+      const desired = typeof nextValue === 'string' ? nextValue : '';
+      const normalizedBase = normalizeNewlines(baseValue);
+      const normalizedNext = normalizeNewlines(desired);
+      if (normalizedNext === normalizedBase) {
+        if (!prev.hasOwnProperty(id)) return prev;
+        const clone = { ...prev };
+        delete clone[id];
+        return clone;
+      }
+      return { ...prev, [id]: desired };
+    });
+  }, []);
+
+  const resetSolutionDraft = useCallback((id) => {
+    setSolutionDrafts(prev => {
+      if (!prev.hasOwnProperty(id)) return prev;
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  }, []);
+
   return (
     <section className="fade accordion-root" aria-label="All problems accordion">
       <div className="accordion-header">
-        <button className="pill-btn" onClick={onBack} aria-label="Back to Home" style={{margin:'0 0 1rem'}}>← Back</button>
         <h2 style={{margin:'0 0 .75rem'}}>All Problems (Accordion)</h2>
         <div className="filter-bar">
           <input
@@ -296,8 +409,11 @@ function ProblemAccordion({ problems, onBack, error }) {
                   <ul className="problem-list" style={{listStyle:'none', margin:0, padding:0}}>
                     {list.map(p => {
                       const open = openProblem === p.id;
-                      const solution = typeof p.solution === 'string' ? p.solution : '';
+                      const baseSolution = typeof p.solution === 'string' ? p.solution : '';
                       const tags = typeof p.tags === 'string' ? p.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
+                      const currentCode = solutionTextFor(p) || baseSolution;
+                      const hasDraft = solutionDrafts.hasOwnProperty(p.id);
+                      const language = (p.language || 'java').toLowerCase();
                       return (
                         <li key={p.id} className="problem-row">
                           <div className="problem-head">
@@ -322,7 +438,14 @@ function ProblemAccordion({ problems, onBack, error }) {
                                 </div>
                               )}
                               <div className="description" dangerouslySetInnerHTML={{ __html: getStatementHtml(p) }} />
-                              <pre className="solution-block"><code className="language-java" style={{whiteSpace:'pre'}}>{solution?.trim() || '// No solution shared yet.'}</code></pre>
+                              <CodeReader
+                                title="Solution"
+                                code={currentCode || ''}
+                                language={language}
+                                onChange={(value)=> updateSolutionDraft(p.id, baseSolution, value)}
+                                onReset={()=> resetSolutionDraft(p.id)}
+                                isDirty={hasDraft}
+                              />
                             </div>
                           )}
                         </li>
