@@ -1,21 +1,32 @@
 /* DSA Revision Tool - React implementation
  * Refactored: Removed flip card view, progress & shuffle mechanics.
  * Provides: Topic listing, accordion list, markdown/code viewers, dark/light theme.
- * Data: Loaded from data.generated.json (fallback to data.json).
+ * Data: Loaded from problems.json (auto-generated from ProblemList.xlsx).
  */
 
 const { useState, useEffect, useCallback, useRef, useMemo } = React;
 
 /* --------------------------- Utility / Helpers --------------------------- */
-function groupByTopic(list) {
-  const map = new Map();
-  list.forEach(p => { if (!map.has(p.topic)) map.set(p.topic, []); map.get(p.topic).push(p); });
-  // sort problems per topic by title for stable display
-  return Array.from(map.entries()).map(([topic, arr]) => [topic, arr.sort((a,b)=> a.title.localeCompare(b.title))])
-    .sort((a,b)=> a[0].localeCompare(b[0]));
+function escapeHtml(str = '') {
+  return str.replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
-function getDescriptionHtml(problem) {
-  return problem.descriptionHtml || `<p><strong>${problem.title}</strong></p><p>No description available.</p>`;
+function getStatementHtml(problem) {
+  const raw = typeof problem.statement === 'string' ? problem.statement : '';
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return `<p><strong>${escapeHtml(problem.title || 'Problem')}</strong></p><p>No statement available.</p>`;
+  }
+  const paragraphs = trimmed
+    .replace(/\r/g, '\n')
+    .split(/\n{2,}/)
+    .map(part => part.trim())
+    .filter(Boolean)
+    .map(part => `<p>${escapeHtml(part).replace(/\n/g, '<br/>')}</p>`);
+  return paragraphs.join('') || `<p>${escapeHtml(trimmed)}</p>`;
 }
 // Theme persistence (keep existing behavior)
 function loadTheme() {
@@ -30,28 +41,6 @@ const HLD_MANIFEST = 'hld/manifest.json';
 const LLD_MANIFEST = 'lld/manifest.json';
 const CHEATS_MANIFEST = 'cheatsheets/manifest.json';
 const CUSTOM_MANIFEST = 'custom/manifest.json';
-
-// External solution loading (per-problem), e.g., solutions/<id>.java
-const SOLUTION_DIR = 'solutions';
-const SOLUTION_EXTS = ['java', 'txt', 'md'];
-const solutionCache = new Map(); // id -> string|null (null means not found)
-
-async function fetchExternalSolution(id) {
-  if (solutionCache.has(id)) return solutionCache.get(id);
-  for (const ext of SOLUTION_EXTS) {
-    const url = `${SOLUTION_DIR}/${id}.${ext}`;
-    try {
-      const res = await fetch(url, { cache: 'no-cache' });
-      if (res.ok) {
-        const txt = await res.text();
-        solutionCache.set(id, txt);
-        return txt;
-      }
-    } catch {/* ignore */}
-  }
-  solutionCache.set(id, null);
-  return null;
-}
 
 // Home page: search + section tiles
 function Home({ query, setQuery, results, onSelect, onPickSection }) {
@@ -200,22 +189,26 @@ function CodeViewer({ title, url, onBack }) {
 /**
  * Grind75-style Accordion List (collapsible topics + expandable problems)
  */
-function ProblemAccordion({ problems, onBack }) {
+function ProblemAccordion({ problems, onBack, error }) {
   const [expandedTopic, setExpandedTopic] = useState(null); // topic string or null
   const [openProblem, setOpenProblem] = useState(null); // problem id
-  const [loadingSolution, setLoadingSolution] = useState(null);
-  const [solutions, setSolutions] = useState({}); // id -> code|null
   const [search, setSearch] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState(''); // '', 'Easy', 'Medium', 'Hard'
   const [topicFilter, setTopicFilter] = useState(null); // specific topic chip
 
+  const normalizedProblems = useMemo(()=> problems.map(p => ({
+    ...p,
+    topic: (p.topic || 'Uncategorized').trim() || 'Uncategorized',
+    difficulty: (p.difficulty || 'Unknown').trim() || 'Unknown'
+  })), [problems]);
+
   // Gather topics and difficulties
-  const allTopics = useMemo(()=> Array.from(new Set(problems.map(p=> p.topic))).sort(), [problems]);
+  const allTopics = useMemo(()=> Array.from(new Set(normalizedProblems.map(p=> p.topic))).sort(), [normalizedProblems]);
   const difficulties = ['Easy','Medium','Hard'];
 
   // Filtering pipeline
   const filtered = useMemo(()=> {
-    let list = problems;
+    let list = normalizedProblems;
     if (difficultyFilter) list = list.filter(p=> p.difficulty === difficultyFilter);
     if (topicFilter) list = list.filter(p=> p.topic === topicFilter);
     if (search.trim()) {
@@ -223,7 +216,7 @@ function ProblemAccordion({ problems, onBack }) {
       list = list.filter(p=> p.title.toLowerCase().includes(q));
     }
     return list;
-  }, [problems, difficultyFilter, topicFilter, search]);
+  }, [normalizedProblems, difficultyFilter, topicFilter, search]);
 
   const grouped = useMemo(()=> {
     const map = {};
@@ -232,15 +225,7 @@ function ProblemAccordion({ problems, onBack }) {
   }, [filtered]);
 
   function toggleTopic(topic) { setExpandedTopic(t => t === topic ? null : topic); }
-  async function toggleProblem(p) {
-    setOpenProblem(id => id === p.id ? null : p.id);
-    if (!solutions[p.id]) {
-      setLoadingSolution(p.id);
-      const code = await fetchExternalSolution(p.id);
-      setSolutions(s => ({ ...s, [p.id]: code }));
-      setLoadingSolution(null);
-    }
-  }
+  function toggleProblem(p) { setOpenProblem(id => id === p.id ? null : p.id); }
 
   const highlight = useCallback((title)=> {
     if (!search) return title;
@@ -289,6 +274,7 @@ function ProblemAccordion({ problems, onBack }) {
         <p className="accordion-sub" style={{margin:'0 0 1rem', fontSize:'.85rem', opacity:.7}}>
           {filtered.length} match{filtered.length!==1?'es':''} shown. Expand a topic, then a problem to view its description and solution.
         </p>
+        {error && <p style={{color:'var(--danger)', margin:'0 0 1rem'}} role="alert">{error}</p>}
       </div>
       <div className="accordion-topics" role="list">
         {grouped.map(([topic, list]) => {
@@ -310,7 +296,8 @@ function ProblemAccordion({ problems, onBack }) {
                   <ul className="problem-list" style={{listStyle:'none', margin:0, padding:0}}>
                     {list.map(p => {
                       const open = openProblem === p.id;
-                      const solution = solutions[p.id];
+                      const solution = typeof p.solution === 'string' ? p.solution : '';
+                      const tags = typeof p.tags === 'string' ? p.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
                       return (
                         <li key={p.id} className="problem-row">
                           <div className="problem-head">
@@ -327,8 +314,15 @@ function ProblemAccordion({ problems, onBack }) {
                           </div>
                           {open && (
                             <div id={`problem-panel-${p.id}`} className="problem-panel" role="region" aria-label={p.title + ' details'}>
-                              <div className="description" dangerouslySetInnerHTML={{ __html: getDescriptionHtml(p) }} />
-                              <pre className="solution-block"><code className="language-java" style={{whiteSpace:'pre'}}>{loadingSolution === p.id && !solution ? 'Loading solution...' : (solution ?? p.solutionJava ?? '// No Java solution available.')}</code></pre>
+                              {tags.length > 0 && (
+                                <div className="problem-tags" aria-label="Tags">
+                                  {tags.map(tag => (
+                                    <span key={tag} className="chip tag-chip">{tag}</span>
+                                  ))}
+                                </div>
+                              )}
+                              <div className="description" dangerouslySetInnerHTML={{ __html: getStatementHtml(p) }} />
+                              <pre className="solution-block"><code className="language-java" style={{whiteSpace:'pre'}}>{solution?.trim() || '// No solution shared yet.'}</code></pre>
                             </div>
                           )}
                         </li>
@@ -441,33 +435,20 @@ function App() {
   }, [theme]);
 
   useEffect(()=> {
-    // Load data (prefer generated manifest, then fallback), then merge optional skeleton if present
-    async function loadAll() {
-      try {
-        async function tryJson(url) {
-          try { const r = await fetch(url, { cache: 'no-cache' }); if (!r.ok) return null; return await r.json(); } catch { return null; }
-        }
-        const generated = await tryJson('data.generated.json');
-        const base = generated || (await tryJson('data.json'));
-        if (!base) throw new Error('Failed to load data');
-        const extra = await tryJson('data.neetcode150.skeleton.json');
-        let combined = base;
-        if (Array.isArray(extra) && extra.length) {
-          const byId = new Map(base.map(p => [p.id, p]));
-          for (const p of extra) {
-            if (!p || !p.id) continue;
-            if (!byId.has(p.id)) byId.set(p.id, p);
-          }
-          combined = Array.from(byId.values());
-        }
-        setProblems(combined);
+    let alive = true;
+    fetch('problems.json', { cache: 'no-cache' })
+      .then(res => { if (!res.ok) throw new Error('Failed to load problems'); return res.json(); })
+      .then(data => {
+        if (!alive) return;
+        if (!Array.isArray(data)) throw new Error('Unexpected data shape');
+        setProblems(data);
         setError(null);
-      } catch (e) {
-        console.error(e);
-        setError('Could not load problems.');
-      }
-    }
-    loadAll();
+      })
+      .catch(err => {
+        console.error(err);
+        if (alive) setError('Could not load problems.');
+      });
+    return ()=> { alive = false; };
   }, []);
 
   // Load manifests for new sections (once)
@@ -548,6 +529,7 @@ function App() {
         {viewMode === 'accordion' && (
           <ProblemAccordion
             problems={problems}
+            error={error}
             onBack={()=> setViewMode('home')}
           />
         )}

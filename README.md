@@ -2,9 +2,8 @@
 
 ## Features
 - Single accordion-based browsing experience (topics collapse, problems expand inline)
-- Topic & problem data derived from JSON (no hardcoding of lists)
+- Source of truth is `ProblemList.xlsx`, exported to JSON with one command
 - Inline Java solution with syntax highlighting (Highlight.js)
-- External solution override support (`solutions/<id>.java|md|txt`) loaded lazily
 - Light / Dark theme toggle (persisted in localStorage)
 - Mobile friendly & responsive layout
 - Graceful fallback if problem data fails to load
@@ -16,8 +15,9 @@
 index.html       # Entry page, loads React via CDN
 styles.css       # Themed responsive styles & animations
 app.js           # React components & logic
-data.json        # Sample problems (fallback if generated not present)
-data.generated.json # Build output from tools/manifest/build.js
+ProblemList.xlsx # Master spreadsheet (title/id/topic/difficulty/tags/statement/solution)
+problems.json    # Auto-generated JSON consumed by the UI
+tools/build-problems-json.js # Helper to convert the spreadsheet to JSON
 README.md        # This document
 ```
 
@@ -30,7 +30,15 @@ From Home choose the "Accordion list view" tile (or hit a problem via global sea
 * Keyboard friendly (Tab through toggles; Enter/Space to expand)
 
 ## Updating Data
-Use `node tools/manifest/add-problem.js "Title" --topic "Topic" --difficulty Easy` then `node tools/manifest/build.js` to regenerate `data.generated.json`.
+1. Open `ProblemList.xlsx` and edit/add rows (do **not** rename the existing column headers).
+2. Regenerate the JSON that powers the site:
+
+	```powershell
+	npm run build:data
+	```
+
+	This reads the spreadsheet and rewrites `problems.json` with the exact sheet contents.
+3. Refresh the site (or restart `npm start`) to pick up the changes.
 
 ---
 Happy studying! 🚀

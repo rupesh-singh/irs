@@ -201,6 +201,8 @@ html.light .problem-toggle:hover { background: rgba(0,0,0,.05); }
 .problem-panel { padding:.5rem .75rem .75rem; display:flex; flex-direction:column; gap:.6rem; animation: fadeIn .35s ease; }
 .problem-panel .description { font-size:.85rem; line-height:1.55; }
 .problem-panel pre { margin:0; background: var(--code-bg); padding:.75rem .85rem; border-radius:10px; font-size:.72rem; overflow:auto; }
+.problem-tags { display:flex; flex-wrap:wrap; gap:.35rem; margin:.1rem 0 .35rem; }
+.tag-chip { cursor:default; text-transform:uppercase; letter-spacing:.5px; font-size:.6rem; color:var(--text-dim); border-color: var(--border); }
 @media (min-width: 700px) {
   .problem-toggle { font-size:.85rem; }
   .problem-panel .description { font-size:.95rem; }
