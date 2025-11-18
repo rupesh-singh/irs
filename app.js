@@ -151,41 +151,64 @@ function MarkdownViewer({ title, url, onBack }) {
 }
 
 function CodeViewer({ title, url, onBack }) {
-  const ref = useRef(null);
   const [code, setCode] = useState('');
-  // Infer language from file extension (fallback to auto-detect)
+  const [draft, setDraft] = useState('');
+  const [status, setStatus] = useState('loading');
+  const [error, setError] = useState(null);
   const lang = useMemo(()=> {
     const m = url.match(/\.([a-z0-9]+)$/i);
     const ext = (m?.[1] || '').toLowerCase();
     const map = { js:'javascript', mjs:'javascript', cjs:'javascript', ts:'typescript', py:'python', java:'java', cs:'csharp', cpp:'cpp', cxx:'cpp', cc:'cpp', c:'c', go:'go', rs:'rust', kt:'kotlin', swift:'swift', rb:'ruby', php:'php', scala:'scala', sql:'sql', json:'json', md:'markdown', sh:'bash', bash:'bash' };
     return map[ext] || '';
   }, [url]);
+
   useEffect(()=> {
     let alive = true;
-    fetch(url, { cache:'no-cache' }).then(r=> r.ok? r.text(): Promise.reject()).then(t => { if(alive) setCode(t); }).catch(()=> setCode('// Failed to load file'));
+    setStatus('loading');
+    setError(null);
+    fetch(url, { cache:'no-cache' })
+      .then(r=> r.ok? r.text(): Promise.reject())
+      .then(t => {
+        if (!alive) return;
+        setCode(t);
+        setDraft('');
+        setStatus('ready');
+      })
+      .catch(()=> {
+        if (!alive) return;
+        setCode('');
+        setDraft('');
+        setStatus('error');
+        setError('Unable to load implementation.');
+      });
     return ()=> { alive = false; };
   }, [url]);
-  useEffect(()=> {
-    if (ref.current) {
-      const blocks = ref.current.querySelectorAll('pre code');
-      blocks.forEach(b=> {
-        if (window.hljs) {
-          hljs.highlightElement(b);
-        }
-      });
-    }
-  }, [code]);
-  const copy = async()=> { try { await navigator.clipboard.writeText(code); } catch {} };
+
+  const normalizedLang = lang || 'java';
+  const isDirty = normalizeNewlines(draft || '') !== normalizeNewlines(code || '');
+  const resolvedCode = draft || code;
+
   return (
-    <section className="fade md-container">
-      <button className="pill-btn" onClick={onBack} aria-label="Back" style={{margin:'0 0 .75rem'}}>← Back</button>
-      <div style={{display:'flex', alignItems:'center', gap:'.5rem'}}>
-        <h2 style={{margin:'0'}}>{title}</h2>
-        <button className="copy-btn" onClick={copy} aria-label="Copy code">Copy</button>
+    <section className="fade md-container code-viewer">
+      <div className="viewer-top">
+        <div className="viewer-meta">
+          <span className="viewer-label">Custom Implementation</span>
+          <h2>{title}</h2>
+        </div>
+        <a className="pill-btn ghost hide-sm" href={url} target="_blank" rel="noreferrer">Open Raw</a>
       </div>
-      <div className="md-content" ref={ref}>
-        <pre><code className={lang? `language-${lang}`: ''} style={{whiteSpace:'pre', display:'block'}}>{code}</code></pre>
-      </div>
+      {status === 'loading' && <p className="muted">Fetching implementation…</p>}
+      {error && <p className="alert" role="alert">{error}</p>}
+      <CodeReader
+        title="Implementation"
+        code={resolvedCode}
+        language={normalizedLang}
+        editable
+        emptyMessage={status === 'loading' ? '// Loading implementation…' : '// Implementation not shared yet.'}
+        onChange={(value)=> setDraft(value)}
+        onReset={()=> setDraft('')}
+        isDirty={isDirty}
+      />
     </section>
   );
 }
@@ -464,13 +487,24 @@ function ProblemAccordion({ problems, onBack, error }) {
 }
 function Header({ onBack, canGoBack, theme, toggleTheme }) {
   return (
-    <header className="app-header">
-  <a href="#main" className="skip-link">Skip to main content</a>
-      {canGoBack && <button onClick={onBack} aria-label="Back" title="Back">← <span className="txt">Back</span></button>}
-  <h1 aria-label="DSA Revision Tool"><span aria-hidden>IRS</span><span className="sr-only">Revision Tool</span></h1>
-      <div style={{marginLeft:'auto'}} className="inline-group">
-        <button onClick={toggleTheme} aria-label="Toggle theme" className={"icon-only"} title="Toggle theme">{theme === 'dark' ? '☀️' : '🌙'} <span className="txt">{theme === 'dark' ? 'Light' : 'Dark'}</span></button>
-        <a className="pill-btn hide-sm" href="https://neetcode.io/" target="_blank" rel="noreferrer">NeetCode</a>
+    <header className="app-header" role="banner">
+      <a href="#main" className="skip-link">Skip to main content</a>
+      <div className="header-left">
+        {canGoBack && (
+          <button onClick={onBack} aria-label="Back to previous section" title="Back" className="pill-btn ghost back-btn">← <span className="txt">Back</span></button>
+        )}
+        <div className="brand-block" aria-label="DSA Revision Hub">
+          <div className="logo-pill" aria-hidden="true">IRS</div>
+          <div className="brand-copy">
+            <span className="brand-title">DSA Revision Hub</span>
+            <span className="brand-tagline">Dark-mode grind · Interview ready</span>
+          </div>
+        </div>
+      </div>
+      <div className="header-right">
+        <button onClick={toggleTheme} aria-label="Toggle theme" className="pill-btn ghost icon-only theme-btn" title="Toggle theme">
+          {theme === 'dark' ? '☀️' : '🌙'} <span className="txt">{theme === 'dark' ? 'Light' : 'Dark'}</span>
+        </button>
       </div>
     </header>
   );
