@@ -191,6 +191,7 @@ function CodeViewer({ title, url, onBack }) {
   return (
     <section className="fade md-container code-viewer">
       <div className="viewer-top">
+        <button className="pill-btn" onClick={onBack} aria-label="Back">← Back</button>
         <div className="viewer-meta">
           <span className="viewer-label">Custom Implementation</span>
           <h2>{title}</h2>
@@ -224,8 +225,14 @@ function CodeReader({
   isDirty = false
 }) {
   const [isEditing, setIsEditing] = useState(false);
+  const getDefaultWrap = () => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(max-width: 700px)').matches;
+  };
   const codeRef = useRef(null);
   const editorRef = useRef(null);
+  const [wrapEnabled, setWrapEnabled] = useState(getDefaultWrap);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const sanitizedCode = typeof code === 'string' ? code : '';
   const displayCode = sanitizedCode.trim() ? sanitizedCode : emptyMessage;
 
@@ -243,6 +250,26 @@ function CodeReader({
     }
   }, [isEditing]);
 
+  useEffect(() => {
+    if (!isFullscreen || typeof document === 'undefined') return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isFullscreen]);
+
+  useEffect(() => {
+    if (!isFullscreen || typeof window === 'undefined') return;
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setIsFullscreen(false);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isFullscreen]);
+
   const copy = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(displayCode);
@@ -259,8 +286,23 @@ function CodeReader({
     setIsEditing(false);
   };
 
+  const toggleWrap = () => setWrapEnabled(w => !w);
+  const toggleFullscreen = () => setIsFullscreen(v => !v);
+  const readerClasses = [
+    'code-reader',
+    wrapEnabled ? 'wrap-enabled' : '',
+    isFullscreen ? 'is-fullscreen' : ''
+  ].filter(Boolean).join(' ');
+
   return (
-    <div className="code-reader" aria-label={`${title} code ${isEditing ? 'editor' : 'viewer'}`}>
+    <>
+      {isFullscreen && <div className="code-reader-backdrop" aria-hidden="true" onClick={()=> setIsFullscreen(false)} />}
+      <div
+        className={readerClasses}
+        aria-label={`${title} code ${isEditing ? 'editor' : 'viewer'}`}
+        role={isFullscreen ? 'dialog' : undefined}
+        aria-modal={isFullscreen || undefined}
+      >
       <div className="code-reader-toolbar">
         <span className="code-reader-title">{title}</span>
         <div className="code-reader-actions">
@@ -272,6 +314,12 @@ function CodeReader({
           {onReset && editable && isDirty && (
             <button className="pill-btn ghost" onClick={handleReset}>Reset</button>
           )}
+          <button className="pill-btn ghost" onClick={toggleWrap} aria-pressed={wrapEnabled}>
+            {wrapEnabled ? 'No Wrap' : 'Wrap Lines'}
+          </button>
+          <button className="pill-btn ghost" onClick={toggleFullscreen} aria-pressed={isFullscreen}>
+            {isFullscreen ? 'Close' : 'Expand'}
+          </button>
           <button className="pill-btn ghost" onClick={copy}>Copy</button>
         </div>
       </div>
@@ -281,15 +329,23 @@ function CodeReader({
           className="code-reader-textarea"
           value={code}
           spellCheck={false}
+          wrap={wrapEnabled ? 'soft' : 'off'}
           onChange={(e)=> onChange?.(e.target.value)}
           aria-label={`${title} editor`}
         />
       ) : (
-        <pre className="code-reader-pre" aria-label={`${title} highlighted code`}>
-          <code ref={codeRef} className={`language-${language}`} style={{whiteSpace:'pre'}}>{displayCode}</code>
+        <pre className={`code-reader-pre${wrapEnabled ? ' wrap' : ''}`} aria-label={`${title} highlighted code`}>
+          <code
+            ref={codeRef}
+            className={`language-${language}`}
+            style={{whiteSpace: wrapEnabled ? 'pre-wrap' : 'pre'}}
+          >
+            {displayCode}
+          </code>
         </pre>
       )}
-    </div>
+      </div>
+    </>
   );
 }
 
