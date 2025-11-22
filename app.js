@@ -229,18 +229,42 @@ function CodeReader({
     if (typeof window === 'undefined') return false;
     return window.matchMedia('(max-width: 700px)').matches;
   };
-  const codeRef = useRef(null);
   const editorRef = useRef(null);
   const [wrapEnabled, setWrapEnabled] = useState(getDefaultWrap);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [highlightedHtml, setHighlightedHtml] = useState('');
   const sanitizedCode = typeof code === 'string' ? code : '';
   const displayCode = sanitizedCode.trim() ? sanitizedCode : emptyMessage;
 
   useEffect(() => {
-    if (!isEditing && codeRef.current && window.hljs) {
-      window.hljs.highlightElement(codeRef.current);
-    }
-  }, [displayCode, isEditing, language]);
+    if (isEditing) return;
+    let cancelled = false;
+    let retryId = null;
+
+    const applyHighlight = () => {
+      if (cancelled) return;
+      if (window.hljs?.highlight) {
+        try {
+          const result = language
+            ? window.hljs.highlight(displayCode, { language })
+            : window.hljs.highlightAuto(displayCode);
+          setHighlightedHtml(result.value);
+          return;
+        } catch {
+          setHighlightedHtml(escapeHtml(displayCode));
+          return;
+        }
+      }
+      setHighlightedHtml(escapeHtml(displayCode));
+      retryId = window.setTimeout(applyHighlight, 200);
+    };
+
+    applyHighlight();
+    return () => {
+      cancelled = true;
+      if (retryId) window.clearTimeout(retryId);
+    };
+  }, [displayCode, language, isEditing]);
 
   useEffect(() => {
     if (isEditing && editorRef.current) {
@@ -336,12 +360,10 @@ function CodeReader({
       ) : (
         <pre className={`code-reader-pre${wrapEnabled ? ' wrap' : ''}`} aria-label={`${title} highlighted code`}>
           <code
-            ref={codeRef}
-            className={`language-${language}`}
+            className={`hljs language-${language}`}
             style={{whiteSpace: wrapEnabled ? 'pre-wrap' : 'pre'}}
-          >
-            {displayCode}
-          </code>
+            dangerouslySetInnerHTML={{ __html: highlightedHtml || escapeHtml(displayCode) }}
+          />
         </pre>
       )}
       </div>
