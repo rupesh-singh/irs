@@ -7,5 +7,6 @@
   "TrieDataStructure.java",
   "UnionFindDemo.java",
   "QuickSortDemo.java",
-  "DijkstraDemo.java"
+  "DijkstraDemo.java",
+  "LRUCacheDemo.java"
 ]
