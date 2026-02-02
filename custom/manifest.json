@@ -8,5 +8,5 @@
   "UnionFindDemo.java",
   "QuickSortDemo.java",
   "DijkstraDemo.java",
-  "LRUCacheDemo.java"
+  "LFUCacheDemo.java"
 ]
