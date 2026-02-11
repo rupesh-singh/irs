@@ -1,3 +1,9 @@
 [
-  "DP_Cheatsheet.md"
+  "Design_URL_Shortener.md",
+  "Design_Rate_Limiter.md",
+  "Design_LRU_Cache.md",
+  "Design_Notification_System.md",
+  "Design_Task_Scheduler.md",
+  "Design_PubSub_System.md",
+  "Design_Vending_Machine.md"
 ]
