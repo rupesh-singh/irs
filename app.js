@@ -51,14 +51,14 @@ function Home({ query, setQuery, results, onSelect, onPickSection }) {
   return (
     <section className="fade home" aria-label="Home">
       <div className="home-inner">
-        <h1 className="home-title">DSA Revision Hub</h1>
-        <p className="home-sub">Search problems or pick a section below.</p>
+        <h1 className="home-title">Interview Revision Service</h1>
+        <p className="home-sub">Search anything or dive into a section below.</p>
         <div className="home-search" role="search">
           <input
             type="search"
             value={query}
             onChange={(e)=> setQuery(e.target.value)}
-            placeholder="Global quick search..."
+            placeholder="Search problems, designs, cheatsheets..."
             aria-label="Global quick search"
             autoComplete="off"
           />
@@ -579,7 +579,7 @@ function Header({ onBack, canGoBack, theme, toggleTheme }) {
           <div className="logo-pill" aria-hidden="true">IRS</div>
           <div className="brand-copy">
             <span className="brand-title">DSA Revision Hub</span>
-            <span className="brand-tagline">Dark-mode grind · Interview ready</span>
+            <span className="brand-tagline">Ace every interview</span>
           </div>
         </div>
       </div>
@@ -680,7 +680,7 @@ function GameHub({ problems, onBack }) {
 
   return (
     <section className="fade game-hub">
-      <h2 className="game-hub-title">🎮 Revision Games</h2>
+      <h2 className="game-hub-title">Revision Games</h2>
       <p className="game-hub-sub">Pick a game mode to test your recall on {problems.length} problems.</p>
       <div className="game-grid">
         <button className="game-card" onClick={() => setActiveGame('recall')}>
