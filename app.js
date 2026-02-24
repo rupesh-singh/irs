@@ -97,6 +97,10 @@ function Home({ query, setQuery, results, onSelect, onPickSection }) {
             <div className="sc-icon">⚙️</div>
             <div className="sc-sub">Custom Implementations</div>
           </button>
+          <button className="section-card game-card-home" onClick={()=> onPickSection('games')}>
+            <div className="sc-icon">🎮</div>
+            <div className="sc-sub">Revision Games</div>
+          </button>
         </div>
       </div>
     </section>
@@ -640,10 +644,409 @@ function SearchResults({ results, onJump, query }) {
 
 // (Flip card related components removed.)
 
+/* ========================= GAME HUB & MINI-GAMES ========================= */
+
+/** Utility: shuffle array (Fisher-Yates) */
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/** Utility: pick N random unique items from array (excluding a set) */
+function pickRandom(arr, n, exclude = new Set()) {
+  const pool = arr.filter(x => !exclude.has(x));
+  return shuffleArray(pool).slice(0, n);
+}
+
+/** Persistent recall ratings (localStorage) */
+function loadRecallRatings() {
+  try { return JSON.parse(localStorage.getItem('irs-recall-ratings') || '{}'); } catch { return {}; }
+}
+function saveRecallRatings(ratings) {
+  try { localStorage.setItem('irs-recall-ratings', JSON.stringify(ratings)); } catch {}
+}
+
+/* ---------- Game Hub (entry point for all mini-games) ---------- */
+function GameHub({ problems, onBack }) {
+  const [activeGame, setActiveGame] = useState(null); // null | 'recall' | 'pattern' | 'speed'
+
+  if (activeGame === 'recall') return <BlindRecall problems={problems} onBack={() => setActiveGame(null)} />;
+  if (activeGame === 'pattern') return <PatternMatch problems={problems} onBack={() => setActiveGame(null)} />;
+  if (activeGame === 'speed') return <SpeedRound problems={problems} onBack={() => setActiveGame(null)} />;
+
+  return (
+    <section className="fade game-hub">
+      <h2 className="game-hub-title">🎮 Revision Games</h2>
+      <p className="game-hub-sub">Pick a game mode to test your recall on {problems.length} problems.</p>
+      <div className="game-grid">
+        <button className="game-card" onClick={() => setActiveGame('recall')}>
+          <span className="game-card-icon">🃏</span>
+          <span className="game-card-name">Blind Recall</span>
+          <span className="game-card-desc">See the title, recall the approach, then reveal solution & self-rate.</span>
+        </button>
+        <button className="game-card" onClick={() => setActiveGame('pattern')}>
+          <span className="game-card-icon">🎯</span>
+          <span className="game-card-name">Pattern Match</span>
+          <span className="game-card-desc">Read a problem statement (title hidden) and identify the topic/pattern.</span>
+        </button>
+        <button className="game-card" onClick={() => setActiveGame('speed')}>
+          <span className="game-card-icon">⚡</span>
+          <span className="game-card-name">Speed Round</span>
+          <span className="game-card-desc">30-second timer per problem. Type the key approach, then compare with the actual solution.</span>
+        </button>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- 1. Blind Recall ---------- */
+function BlindRecall({ problems, onBack }) {
+  const [ratings, setRatings] = useState(loadRecallRatings);
+  const [queue, setQueue] = useState(() => {
+    // Prioritize problems rated "hard", then unrated, then "medium", then "easy"
+    const r = loadRecallRatings();
+    const scored = problems.map(p => {
+      const rating = r[p.id];
+      let priority = 2; // unrated
+      if (rating === 'hard') priority = 3;
+      else if (rating === 'medium') priority = 1;
+      else if (rating === 'easy') priority = 0;
+      return { ...p, priority };
+    });
+    scored.sort((a, b) => b.priority - a.priority || Math.random() - 0.5);
+    return scored;
+  });
+  const [index, setIndex] = useState(0);
+  const [revealed, setRevealed] = useState(false);
+  const [sessionStats, setSessionStats] = useState({ easy: 0, medium: 0, hard: 0 });
+
+  const current = queue[index];
+
+  function rate(level) {
+    const next = { ...ratings, [current.id]: level };
+    setRatings(next);
+    saveRecallRatings(next);
+    setSessionStats(s => ({ ...s, [level]: s[level] + 1 }));
+    setRevealed(false);
+    setIndex(i => i + 1);
+  }
+
+  const isFinished = index >= queue.length;
+  const total = sessionStats.easy + sessionStats.medium + sessionStats.hard;
+
+  return (
+    <section className="fade game-container">
+      <button className="pill-btn ghost" onClick={onBack} style={{ marginBottom: '.75rem' }}>← Back to Games</button>
+      <h2 className="game-title">🃏 Blind Recall</h2>
+      {!isFinished && current ? (
+        <>
+          <div className="game-stats">
+            <span>Card {index + 1}/{queue.length}</span>
+            <span>Easy: {sessionStats.easy}</span>
+            <span>Medium: {sessionStats.medium}</span>
+            <span>Hard: {sessionStats.hard}</span>
+          </div>
+          <div className="recall-card">
+            <div className="recall-front">
+              <span className="recall-label">Can you recall the approach for:</span>
+              <h3 className="recall-problem-title">{current.title}</h3>
+              <span className="quiz-difficulty" data-diff={current.difficulty?.toLowerCase()}>{current.difficulty}</span>
+              {current.tags && <div className="recall-tags">{current.tags.split(',').map(t => t.trim()).filter(Boolean).map(t => <span key={t} className="chip tag-chip">{t}</span>)}</div>}
+            </div>
+            {!revealed ? (
+              <button className="pill-btn reveal-btn" onClick={() => setRevealed(true)}>👁 Reveal Solution</button>
+            ) : (
+              <div className="recall-revealed fade">
+                <div className="recall-solution">
+                  <CodeReader title="Solution" code={current.solution || '// No solution available'} language={(current.language || 'java').toLowerCase()} editable={false} />
+                </div>
+                <div className="recall-rate">
+                  <span className="recall-rate-label">How hard was it to recall?</span>
+                  <div className="recall-rate-btns">
+                    <button className="pill-btn recall-easy" onClick={() => rate('easy')}>😊 Easy</button>
+                    <button className="pill-btn recall-medium" onClick={() => rate('medium')}>🤔 Medium</button>
+                    <button className="pill-btn recall-hard" onClick={() => rate('hard')}>😰 Hard</button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        <div className="game-over">
+          <h3>🏁 Session Complete!</h3>
+          <p>You reviewed {total} problem{total !== 1 ? 's' : ''}.</p>
+          <div className="game-over-stats">
+            <span>😊 Easy: <strong>{sessionStats.easy}</strong></span>
+            <span>🤔 Medium: <strong>{sessionStats.medium}</strong></span>
+            <span>😰 Hard: <strong>{sessionStats.hard}</strong></span>
+          </div>
+          <p className="recall-hint">Problems rated "Hard" will appear first in your next session.</p>
+          <button className="pill-btn" onClick={onBack}>Back to Games</button>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* ---------- 3. Pattern Match Challenge ---------- */
+function PatternMatch({ problems, onBack }) {
+  const allTopics = useMemo(() => Array.from(new Set(problems.map(p => (p.topic || 'Uncategorized').trim()))).sort(), [problems]);
+
+  const [round, setRound] = useState(0);
+  const [score, setScore] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(45);
+  const timerRef = useRef(null);
+
+  const questionSet = useMemo(() => shuffleArray(problems.filter(p => p.statement && p.statement.trim())).slice(0, Math.min(problems.length, 15)), [problems]);
+  const current = questionSet[round];
+  const correctAnswer = current ? (current.topic || 'Uncategorized').trim() : '';
+
+  const options = useMemo(() => {
+    if (!current) return [];
+    const wrong = pickRandom(allTopics, 3, new Set([correctAnswer]));
+    return shuffleArray([correctAnswer, ...wrong]);
+  }, [current, allTopics, correctAnswer]);
+
+  // Timer per question
+  useEffect(() => {
+    if (showAnswer || round >= questionSet.length) return;
+    setTimeLeft(45);
+    timerRef.current = setInterval(() => {
+      setTimeLeft(t => {
+        if (t <= 1) {
+          clearInterval(timerRef.current);
+          setShowAnswer(true);
+          setSelected(null);
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [round, showAnswer, questionSet.length]);
+
+  function handlePick(opt) {
+    if (showAnswer) return;
+    clearInterval(timerRef.current);
+    setSelected(opt);
+    setShowAnswer(true);
+    if (opt === correctAnswer) setScore(s => s + 1);
+  }
+
+  function nextRound() {
+    setSelected(null);
+    setShowAnswer(false);
+    setRound(r => r + 1);
+  }
+
+  const isFinished = round >= questionSet.length;
+
+  // Truncated statement for display
+  const statementPreview = current ? (current.statement || '').replace(/\r/g, '\n').slice(0, 600) + ((current.statement || '').length > 600 ? '…' : '') : '';
+
+  return (
+    <section className="fade game-container">
+      <button className="pill-btn ghost" onClick={onBack} style={{ marginBottom: '.75rem' }}>← Back to Games</button>
+      <h2 className="game-title">🎯 Pattern Match</h2>
+      {!isFinished && current ? (
+        <>
+          <div className="game-stats">
+            <span>Round {round + 1}/{questionSet.length}</span>
+            <span>Score: {score}</span>
+            <span className={`timer${timeLeft <= 10 ? ' timer-warn' : ''}`}>⏱ {timeLeft}s</span>
+          </div>
+          <div className="pattern-card">
+            <div className="pattern-statement">
+              <span className="pattern-label">Which topic does this problem belong to?</span>
+              <div className="pattern-text">{statementPreview.split('\n').filter(Boolean).map((line, i) => <p key={i}>{line}</p>)}</div>
+            </div>
+            <div className="quiz-options">
+              {options.map(opt => {
+                let cls = 'quiz-opt';
+                if (showAnswer) {
+                  if (opt === correctAnswer) cls += ' correct';
+                  else if (opt === selected) cls += ' wrong';
+                }
+                return (
+                  <button key={opt} className={cls} onClick={() => handlePick(opt)} disabled={showAnswer}>
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+            {showAnswer && (
+              <div className="quiz-feedback fade">
+                {selected === correctAnswer
+                  ? <span className="quiz-correct-msg">✅ Correct! It's <strong>{current.title}</strong></span>
+                  : selected === null
+                    ? <span className="quiz-wrong-msg">⏰ Time's up! It was <strong>{current.title}</strong> ({correctAnswer})</span>
+                    : <span className="quiz-wrong-msg">❌ Wrong — it's <strong>{current.title}</strong> ({correctAnswer})</span>}
+                <button className="pill-btn" onClick={nextRound} style={{ marginTop: '.5rem' }}>Next →</button>
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        <div className="game-over">
+          <h3>🏁 Pattern Match Complete!</h3>
+          <div className="game-over-stats">
+            <span>Score: <strong>{score}/{questionSet.length}</strong></span>
+            <span>Accuracy: <strong>{questionSet.length ? Math.round((score / questionSet.length) * 100) : 0}%</strong></span>
+          </div>
+          <button className="pill-btn" onClick={onBack}>Back to Games</button>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* ---------- 4. Speed Round ---------- */
+function SpeedRound({ problems, onBack }) {
+  const [round, setRound] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(30);
+  const [userAnswer, setUserAnswer] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [score, setScore] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [bestStreak, setBestStreak] = useState(0);
+  const [selfCorrect, setSelfCorrect] = useState(null); // null | true | false
+  const timerRef = useRef(null);
+  const inputRef = useRef(null);
+
+  const questionSet = useMemo(() => shuffleArray(problems).slice(0, Math.min(problems.length, 15)), [problems]);
+  const current = questionSet[round];
+
+  // Timer
+  useEffect(() => {
+    if (submitted || round >= questionSet.length) return;
+    setTimeLeft(30);
+    timerRef.current = setInterval(() => {
+      setTimeLeft(t => {
+        if (t <= 1) {
+          clearInterval(timerRef.current);
+          setSubmitted(true);
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [round, submitted, questionSet.length]);
+
+  // Focus input on new round
+  useEffect(() => {
+    if (!submitted && inputRef.current) inputRef.current.focus();
+  }, [round, submitted]);
+
+  function handleSubmit(e) {
+    e?.preventDefault();
+    if (submitted) return;
+    clearInterval(timerRef.current);
+    setSubmitted(true);
+  }
+
+  function handleSelfRate(correct) {
+    setSelfCorrect(correct);
+    if (correct) {
+      setScore(s => s + 1);
+      setStreak(s => { const n = s + 1; setBestStreak(b => Math.max(b, n)); return n; });
+    } else {
+      setStreak(0);
+    }
+  }
+
+  function nextRound() {
+    setUserAnswer('');
+    setSubmitted(false);
+    setSelfCorrect(null);
+    setRound(r => r + 1);
+  }
+
+  const isFinished = round >= questionSet.length;
+
+  return (
+    <section className="fade game-container">
+      <button className="pill-btn ghost" onClick={onBack} style={{ marginBottom: '.75rem' }}>← Back to Games</button>
+      <h2 className="game-title">⚡ Speed Round</h2>
+      {!isFinished && current ? (
+        <>
+          <div className="game-stats">
+            <span>Round {round + 1}/{questionSet.length}</span>
+            <span>Score: {score}</span>
+            <span>Streak: {streak} 🔥</span>
+            <span className={`timer${timeLeft <= 10 ? ' timer-warn' : ''}`}>⏱ {timeLeft}s</span>
+          </div>
+          <div className="speed-card">
+            <div className="speed-prompt">
+              <span className="speed-label">Describe the key approach/algorithm for:</span>
+              <h3 className="speed-problem-title">{current.title}</h3>
+              <span className="quiz-difficulty" data-diff={current.difficulty?.toLowerCase()}>{current.difficulty}</span>
+            </div>
+            {!submitted ? (
+              <form onSubmit={handleSubmit} className="speed-form">
+                <textarea
+                  ref={inputRef}
+                  className="speed-input"
+                  value={userAnswer}
+                  onChange={(e) => setUserAnswer(e.target.value)}
+                  placeholder="Type the key idea / approach / data structure..."
+                  rows={4}
+                />
+                <button type="submit" className="pill-btn">Submit ✓</button>
+              </form>
+            ) : (
+              <div className="speed-result fade">
+                <div className="speed-yours">
+                  <span className="speed-result-label">Your Answer:</span>
+                  <div className="speed-user-text">{userAnswer || <em>(no answer)</em>}</div>
+                </div>
+                <CodeReader title="Actual Solution" code={current.solution || '// No solution available'} language={(current.language || 'java').toLowerCase()} editable={false} />
+                {selfCorrect === null ? (
+                  <div className="speed-self-rate">
+                    <span>Did you get it right?</span>
+                    <div className="speed-rate-btns">
+                      <button className="pill-btn recall-easy" onClick={() => handleSelfRate(true)}>✅ Yes</button>
+                      <button className="pill-btn recall-hard" onClick={() => handleSelfRate(false)}>❌ No</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="speed-next">
+                    <span>{selfCorrect ? '🎉 Great job!' : '💪 Keep practicing!'}</span>
+                    <button className="pill-btn" onClick={nextRound}>Next →</button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        <div className="game-over">
+          <h3>🏁 Speed Round Complete!</h3>
+          <div className="game-over-stats">
+            <span>Score: <strong>{score}/{questionSet.length}</strong></span>
+            <span>Accuracy: <strong>{questionSet.length ? Math.round((score / questionSet.length) * 100) : 0}%</strong></span>
+            <span>Best Streak: <strong>{bestStreak} 🔥</strong></span>
+          </div>
+          <button className="pill-btn" onClick={onBack}>Back to Games</button>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* ========================= END GAME HUB ========================= */
+
 function App() {
   const [problems, setProblems] = useState([]);
   const [error, setError] = useState(null);
-  const [viewMode, setViewMode] = useState('home'); // 'home' | 'accordion' | 'hld' | 'lld' | 'cheats' | 'custom' | 'hld-view' | 'lld-view' | 'cheats-view' | 'custom-view'
+  const [viewMode, setViewMode] = useState('home'); // 'home' | 'accordion' | 'hld' | 'lld' | 'cheats' | 'custom' | 'games' | 'hld-view' | 'lld-view' | 'cheats-view' | 'custom-view'
   const [theme, setTheme] = useState(loadTheme());
   const [searchQuery, setSearchQuery] = useState('');
   const mainRef = useRef(null);
@@ -743,7 +1146,7 @@ function App() {
           // Back logic simplified: any section except home returns to home
           if (['hld-view','lld-view','cheats-view','custom-view'].includes(viewMode)) {
             const back = viewMode.replace('-view',''); setViewMode(back);
-          } else if (['hld','lld','cheats','custom','accordion'].includes(viewMode)) {
+          } else if (['hld','lld','cheats','custom','accordion','games'].includes(viewMode)) {
             setViewMode('home');
           }
         }}
@@ -816,6 +1219,9 @@ function App() {
         )}
         {viewMode === 'custom-view' && currentDoc && (
           <CodeViewer title={currentDoc.title} url={currentDoc.url} onBack={()=> setViewMode('custom')} />
+        )}
+        {viewMode === 'games' && (
+          <GameHub problems={problems} onBack={()=> setViewMode('home')} />
         )}
       </main>
     </>
