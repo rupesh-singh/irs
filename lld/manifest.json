@@ -5,5 +5,11 @@
   "Design_Notification_System.md",
   "Design_Task_Scheduler.md",
   "Design_PubSub_System.md",
-  "Design_Vending_Machine.md"
+  "Design_Vending_Machine.md",
+  "CIRCUIT_BREAKER_LLD.md",
+  "CONNECTION_POOL_LLD.md",
+  "DAG_EXECUTION_LLD.md",
+  "JOB_SCHEDULER_LLD.md",
+  "FEATURE_FLAG_LLD.md",
+  "LOGGING_SERVICE_LLD.md"
 ]

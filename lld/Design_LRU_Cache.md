@@ -32,106 +32,183 @@ Design a Least Recently Used (LRU) Cache that supports `get` and `put` operation
 ## 🏗️ Core Implementation
 
 ```java
-class LRUCache<K, V> {
-    
-    private final int capacity;
-    private final Map<K, Node<K, V>> cache;
-    private final DoublyLinkedList<K, V> dll;
-    
-    public LRUCache(int capacity) {
-        this.capacity = capacity;
-        this.cache = new HashMap<>();
-        this.dll = new DoublyLinkedList<>();
-    }
-    
-    public V get(K key) {
-        Node<K, V> node = cache.get(key);
-        if (node == null) {
-            return null;
-        }
-        // Move to front (most recently used)
-        dll.moveToFront(node);
-        return node.value;
-    }
-    
-    public void put(K key, V value) {
-        Node<K, V> existing = cache.get(key);
-        
-        if (existing != null) {
-            existing.value = value;
-            dll.moveToFront(existing);
-            return;
-        }
-        
-        // Evict if at capacity
-        if (cache.size() >= capacity) {
-            Node<K, V> lru = dll.removeLast();
-            cache.remove(lru.key);
-        }
-        
-        // Add new node
-        Node<K, V> newNode = new Node<>(key, value);
-        dll.addFirst(newNode);
-        cache.put(key, newNode);
-    }
-    
-    public void remove(K key) {
-        Node<K, V> node = cache.remove(key);
-        if (node != null) {
-            dll.remove(node);
-        }
-    }
+interface ICacheStrategy {
+    int get(int key);
+    boolean set(int key, int value);
 }
 
-class Node<K, V> {
-    K key;
-    V value;
-    Node<K, V> prev;
-    Node<K, V> next;
-    
-    Node(K key, V value) {
+class Node {
+    int key;
+    int value;
+    int frequency;
+    Node next;
+    Node prev;
+
+    public Node(int key, int value){
         this.key = key;
         this.value = value;
+        this.frequency = 0;
     }
 }
 
-class DoublyLinkedList<K, V> {
-    private final Node<K, V> head; // dummy head
-    private final Node<K, V> tail; // dummy tail
-    
-    DoublyLinkedList() {
-        head = new Node<>(null, null);
-        tail = new Node<>(null, null);
+class DLL {
+    Node head;
+    Node tail;
+
+    public DLL(){
+        head = new Node(-1,-1);
+        tail = new Node(-1,-1);
         head.next = tail;
         tail.prev = head;
     }
-    
-    void addFirst(Node<K, V> node) {
-        node.next = head.next;
-        node.prev = head;
-        head.next.prev = node;
-        head.next = node;
+
+    public void addToFront(Node n){
+        Node temp = head.next;
+        head.next = n;
+        n.next = temp;
+        temp.prev = n;
+        n.prev = head;
     }
-    
-    void remove(Node<K, V> node) {
-        node.prev.next = node.next;
-        node.next.prev = node.prev;
+
+    public void remove(Node n){
+        n.prev.next = n.next;
+        n.next.prev = n.prev;
     }
-    
-    void moveToFront(Node<K, V> node) {
-        remove(node);
-        addFirst(node);
+
+    public Node removeLast(){
+        Node temp = tail.prev;
+        temp.prev.next = tail;
+        tail.prev = temp.prev;
+        return temp;
     }
-    
-    Node<K, V> removeLast() {
-        if (tail.prev == head) {
-            return null;
-        }
-        Node<K, V> last = tail.prev;
-        remove(last);
-        return last;
+
+    public boolean isEmpty(){
+        return head.next == tail && tail.prev == head;
     }
 }
+
+
+class LRUCache implements ICacheStrategy{
+    ConcurrentHashMap<Integer,Node> map ;
+    DLL linkedList;
+    int size;
+    public LRUCache(int size){
+        this.map = new ConcurrentHashMap<>();
+        linkedList = new DLL();
+        this.size = size;
+    }
+
+
+    @Override
+    public synchronized int get(int key) {
+        if(!map.containsKey(key)){
+            return -1;
+        }
+        Node value = map.get(key);
+        linkedList.remove(value);
+        linkedList.addToFront(value);
+        return value.value;
+    }
+
+    @Override
+    public synchronized boolean set(int key, int value) {
+        if(map.containsKey(key)){
+            Node temp = map.get(key);
+            temp.value = value;
+            linkedList.remove(temp);
+            linkedList.addToFront(temp);
+        }
+        else {
+            Node temp = new Node(key,value);
+            if(map.size() >= size){
+                Node removed = linkedList.removeLast();
+                map.remove(removed.key);
+                linkedList.addToFront(temp);
+            }
+            else {
+                linkedList.addToFront(temp);
+            }
+            map.put(key,temp);
+        }
+        return true;
+    }
+}
+
+
+class LFUCache implements ICacheStrategy{
+
+    HashMap<Integer,Node> cache;
+    HashMap<Integer,DLL> freqmap;
+    int size;
+    int minFreq;
+    public LFUCache(int size){
+        cache = new HashMap<>();
+        freqmap = new HashMap<>();
+        this.size = size;
+        this.minFreq = 0;
+    }
+
+    @Override
+    public int get(int key) {
+        Node val = cache.get(key);
+        if(val == null){
+            return -1;
+        }
+        updateFreq(val);
+        return val.value;
+    }
+
+    @Override
+    public boolean set(int key, int value) {
+        Node temp = cache.get(key);
+        if(temp != null){
+            temp.value = value;
+            updateFreq(temp);
+            return true;
+        }
+
+        if(cache.size() >= size){
+            Node n = freqmap.get(minFreq).removeLast();
+            cache.remove(n.key);
+        }
+
+
+        // Case 3: Insert new node
+        Node newNode = new Node(key, value);
+
+        // New node always starts with frequency = 1
+        newNode.frequency = 1;
+        minFreq = 1;
+
+        freqmap.putIfAbsent(1, new DLL());
+        freqmap.get(1).addToFront(newNode);
+
+        cache.put(key, newNode);
+        return true;
+    }
+
+    public void updateFreq(Node node){
+        int prevFreq = node.frequency;
+
+        // Remove from old frequency list (if not new node)
+        if (prevFreq > 0) {
+            DLL oldList = freqmap.get(prevFreq);
+            oldList.remove(node);
+
+            if (oldList.isEmpty() && minFreq == prevFreq) {
+                minFreq++;
+            }
+        }
+
+        // Increase frequency
+        node.frequency++;
+
+        // Add to new frequency list
+        freqmap.putIfAbsent(node.frequency, new DLL());
+        freqmap.get(node.frequency).addToFront(node);
+    }
+}
+
 ```
 
 ---
