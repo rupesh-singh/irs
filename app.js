@@ -43,6 +43,7 @@ const LLD_MANIFEST = 'lld/manifest.json';
 const CHEATS_MANIFEST = 'cheatsheets/manifest.json';
 const CUSTOM_MANIFEST = 'custom/manifest.json';
 const MT_MANIFEST = 'multithreading/manifest.json';
+const COMPANY_MANIFEST = 'company/manifest.json';
 
 /* ─── SVG Icons (inline, no deps) ─── */
 const Icons = {
@@ -59,6 +60,7 @@ const Icons = {
   bookmark: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>,
   bookmarkFill: <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>,
   threads: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>,
+  building: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="9" y1="6" x2="9" y2="6.01"/><line x1="15" y1="6" x2="15" y2="6.01"/><line x1="9" y1="10" x2="9" y2="10.01"/><line x1="15" y1="10" x2="15" y2="10.01"/><line x1="9" y1="14" x2="9" y2="14.01"/><line x1="15" y1="14" x2="15" y2="14.01"/><line x1="9" y1="18" x2="15" y2="18"/></svg>,
   more: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>,
 };
 
@@ -126,6 +128,7 @@ function Sidebar({ activeView, onNavigate, theme, toggleTheme, problemCount, due
     { id:'cheats', label:'Cheatsheets', icon: Icons.file },
     { id:'custom', label:'Custom Impls', icon: Icons.tool },
     { id:'mt', label:'Multithreading', icon: Icons.threads },
+    { id:'company', label:'Company Prep', icon: Icons.building },
     { id:'games', label:'Revision Games', icon: Icons.game, badge: dueCount > 0 ? dueCount : null },
   ];
   return (
@@ -185,6 +188,7 @@ function BottomTabs({ activeView, onNavigate }) {
     { id:'cheats', label:'Cheatsheets', icon: Icons.file },
     { id:'custom', label:'Custom Impls', icon: Icons.tool },
     { id:'mt', label:'Multithreading', icon: Icons.threads },
+    { id:'company', label:'Company Prep', icon: Icons.building },
     { id:'games', label:'Revision Games', icon: Icons.game },
   ];
   const moreActive = moreTabs.some(t => t.id === activeView);
@@ -926,6 +930,7 @@ function App() {
   const [cheatFiles, setCheatFiles] = useState([]);
   const [customFiles, setCustomFiles] = useState([]);
   const [mtFiles, setMtFiles] = useState([]);
+  const [companyFiles, setCompanyFiles] = useState([]);
   const [currentDoc, setCurrentDoc] = useState(null);
   const [problemNavHint, setProblemNavHint] = useState(null); // {topicFilter}
 
@@ -954,6 +959,7 @@ function App() {
     load(HLD_MANIFEST, setHldFiles); load(LLD_MANIFEST, setLldFiles);
     load(CHEATS_MANIFEST, setCheatFiles); load(CUSTOM_MANIFEST, setCustomFiles);
     load(MT_MANIFEST, setMtFiles);
+    load(COMPANY_MANIFEST, setCompanyFiles);
   }, []);
 
   // Bookmarks
@@ -973,8 +979,9 @@ function App() {
     cheatFiles.forEach(n => items.push({key:`cheats:${n}`,section:'Cheatsheet',type:'cheats',title:n.replace(/\.(md|markdown)$/i,'').replaceAll('_',' '),data:n,icon:Icons.file}));
     customFiles.forEach(n => items.push({key:`custom:${n}`,section:'Custom Impl',type:'custom',title:n.replace(/\.(java)$/i,'').replaceAll('_',' '),data:n,icon:Icons.tool}));
     mtFiles.forEach(n => items.push({key:`mt:${n}`,section:'Multithreading',type:'mt',title:n.replace(/\.(java)$/i,'').replaceAll('_',' '),data:n,icon:Icons.threads}));
+    companyFiles.forEach(n => items.push({key:`company:${n}`,section:'Company Prep',type:'company',title:n.replace(/\.(md|markdown)$/i,'').replaceAll('_',' '),data:n,icon:Icons.building}));
     return items;
-  }, [problems, hldFiles, lldFiles, cheatFiles, customFiles, mtFiles]);
+  }, [problems, hldFiles, lldFiles, cheatFiles, customFiles, mtFiles, companyFiles]);
 
   const handlePaletteSelect = useCallback((item) => {
     if (item.type==='dsa') { setView('problems'); setProblemNavHint(null); }
@@ -983,6 +990,7 @@ function App() {
     else if (item.type==='cheats') { setCurrentDoc({title:item.title,url:`cheatsheets/${item.data}`,section:'cheats'}); setView('cheats-view'); }
     else if (item.type==='custom') { setCurrentDoc({title:item.title,url:`custom/${item.data}`,section:'custom'}); setView('custom-view'); }
     else if (item.type==='mt') { setCurrentDoc({title:item.title,url:`multithreading/${item.data}`,section:'mt'}); setView('mt-view'); }
+    else if (item.type==='company') { setCurrentDoc({title:item.title,url:`company/${item.data}`,section:'company'}); setView('company-view'); }
     window.scrollTo({top:0,behavior:'smooth'});
   }, []);
 
@@ -1002,7 +1010,7 @@ function App() {
     if (hint) setProblemNavHint(hint);
     else setProblemNavHint(null);
     // Reset sub-views when switching top-level sections
-    if (['home','problems','hld','lld','cheats','custom','mt','games'].includes(target)) {
+    if (['home','problems','hld','lld','cheats','custom','mt','company','games'].includes(target)) {
       setCurrentDoc(null);
     }
     setView(target);
@@ -1013,7 +1021,7 @@ function App() {
 
   // Helpers for opening docs within sections
   const openDoc = useCallback((section, name) => {
-    const folder = section==='hld'?'hld':section==='lld'?'lld':section==='cheats'?'cheatsheets':section==='mt'?'multithreading':'custom';
+    const folder = section==='hld'?'hld':section==='lld'?'lld':section==='cheats'?'cheatsheets':section==='mt'?'multithreading':section==='company'?'company':'custom';
     const title = name.replace(/\.(md|markdown|java)$/i,'');
     setCurrentDoc({title, url:`${folder}/${name}`, section});
     setView(`${section}-view`);
@@ -1078,6 +1086,14 @@ function App() {
           {view === 'mt-view' && currentDoc && (
             <CodeViewer title={currentDoc.title} url={currentDoc.url} sectionLabel="Multithreading"
               onBack={() => setView('mt')} files={mtFiles} onOpen={(name) => openDoc('mt', name)} />
+          )}
+          {view === 'company' && (
+            <MarkdownList title="Company Preparation" files={companyFiles} sectionLabel="Company"
+              onOpen={(name) => openDoc('company', name)} />
+          )}
+          {view === 'company-view' && currentDoc && (
+            <MarkdownViewer title={currentDoc.title} url={currentDoc.url} folder="Company"
+              onBack={() => setView('company')} files={companyFiles} onOpen={(name) => openDoc('company', name)} />
           )}
           {view === 'games' && <GameHub problems={problems} />}
         </div>
