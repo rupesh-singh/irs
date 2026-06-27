@@ -1,3 +1,7 @@
 [
-  "SystemDesign_GoogleDocs.md"
+  "HLD_Core_Concepts.md",
+  "HLD_Patterns.md",
+  "HLD_Elasticsearch.md",
+  "Message_Queue.md",
+  "Distributed_Cache.md"
 ]
