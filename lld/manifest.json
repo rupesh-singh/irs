@@ -8,7 +8,7 @@
   "Design_Vending_Machine.md",
   "CIRCUIT_BREAKER_LLD.md",
   "CONNECTION_POOL_LLD.md",
-  "DAG_EXECUTION_LLD.md",
+  "DAG_EXECUTOR_LLD.md",
   "JOB_SCHEDULER_LLD.md",
   "FEATURE_FLAG_LLD.md",
   "LOGGING_SERVICE_LLD.md"
